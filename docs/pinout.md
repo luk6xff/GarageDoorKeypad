@@ -12,7 +12,7 @@
 | PA6 | _G_(2,4,<,M) |
 | PA7 | _H_(6,8,>) |
 |**_nRF24L01+:** |
-| TR1 (PNP-EMITER) | _GND
+| TR1 (PNP-EMITER) | _GND |
 | VCC (3,3V) | VCC |
 | PC6 | CE |
 | PB12(SPI2_NSS) | CSN |
@@ -25,8 +25,8 @@
 | GND | A1|
 | GND |A2|
 | GND |GND |
-| PF7(I2C2\_SDA)-PullUp 4,7kOhm |SDA |
-| PF6(I2C2\_SCL)-PullUp 4,7kOhm |SCL|
+| PF7(I2C2_SDA)-PullUp 4,7kOhm |SDA |
+| PF6(I2C2_SCL)-PullUp 4,7kOhm |SCL|
 | PA12-(VCC-disable,GND-enable) |WP |
 | VCC (3,3V) |VCC | 
 |**_LEDS_** |

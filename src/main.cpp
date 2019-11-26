@@ -1,10 +1,24 @@
 #include <mbed.h>
+#include "AT24C64/platform/mbed/at24c64-mbed.h"
 
-int main() {
 
-  // put your setup code here, to run once:
 
-  while(1) {
-    // put your main code here, to run repeatedly:
-  }
+#define AT24C64_ADDRESS 0xA0   /* |1|0|1|0|A2|A1|A0|R/W| */
+#define AT24C64_PAGE_SIZE 32 
+#define AT24C64_NR_OF_PAGES 256
+#define AT24C64_CHIP_SIZE (AT24C64_PAGE_SIZE*AT24C64_NR_OF_PAGES)
+
+
+int main()
+{
+    AT24C64_MbedInit(PF_7, PF_6, PA12, AT24C64_ADDRESS, AT24C64_CHIP_SIZE, AT24C64_PAGE_SIZE);
+
+    DigitalOut ledGreen(PA11);
+
+    while(1) {
+      ledGreen = 1;
+      wait_us(1000*1000);
+      ledGreen = 0;
+      wait_us(1000*1000);
+    }
 }
