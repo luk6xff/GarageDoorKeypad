@@ -1,0 +1,3 @@
+(fp_lib_table
+  (lib (name zamekKodowy_odbiornik)(type KiCad)(uri "$(KIPRJMOD)/zamekKodowy_odbiornik.pretty")(options "")(descr ""))
+)

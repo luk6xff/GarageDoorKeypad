@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "*.tpp": "c",
+        "*.tcc": "c",
+        "at24c64.h": "c"
+    }
+}
