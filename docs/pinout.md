@@ -1,18 +1,35 @@
 | **uc STM32F051R8T6** | **Peripherals** |
 | --- | --- |
-| PIN NUMBER | PIN NAME | PIN NUMBER | PIN NAME |
-|  | _Keyboard:_ |
-| 1415161720212223 | PA0PA1PA2PA3PA4PA5PA6PA7 | 12345678 | _A_  ( 1,2,3,6)_B  (9,4,5,8)__C  (0, <, 7, >)__D (P,M,ESC)
-E  (1,9,0,P)
-F  (3,5,7,ESC)
-G  (2,4,<,M)
-H  (6,8,>)_   |
-|  | _nRF24L01+:_ |
-| TR1VCC373334353638 | TR1 (PNP-EMITER)VCC (3,3V)PC6PB12(SPI2\_NSS)PB13(SPI2\_SCK)PB15(SPI2\_MOSI)PB14(SPI2\_MISO)PC7 | 12345678 | _GND __VCC__ CE __CSN__ SCK __MOSI__ MISO__IRQ_ |
-|  | _AT24C64D_ |
-| GNDGNDGNDGND484745VCC | GNDGNDGNDGNDPF7(I2C2\_SDA) –PullUp 4,7komPF6(I2C2\_SCL) –PullUp 4,7komPA12-(VCC-disable,GND-enable)VCC (3,3V)   | 12345678 | _A0 __A1__ A2 __GND__ SDA __SCL__ WP__VCC_ |
-|  | _LEDS_ |
-| 4443 | PA11PA10 | 12 | _GREEN__RED_ |
+| PIN NAME | PIN NAME |
+|  | **_Keypad:_** |
+| PA0 | _A_(1,2,3,6) |
+| PA1 | _B_(9,4,5,8) |
+| PA2 | _C_(0,<,7,>) |
+| PA3 | _D_(P,M,ESC) |
+| PA4 | _E_(1,9,0,P) |
+| PA5 | _F_(3,5,7,ESC) |
+| PA6 | _G_(2,4,<,M) |
+| PA7 | _H_(6,8,>) |
+|  | **_nRF24L01+:** |
+| TR1 (PNP-EMITER) | _GND
+| VCC (3,3V) | VCC |
+| PC6 | CE |
+| PB12(SPI2_NSS) | CSN |
+| PB13(SPI2_SCK) | SCK |
+| PB15(SPI2_MOSI) | MOSI|
+| PB14(SPI2_MISO) | MISO |
+| PC7 |     IRQ |
+|  | **_AT24C64D_** |
+| GND | A0 |
+| GND | A1|
+| GND |A2|
+| GND |GND |
+| PF7(I2C2\_SDA)-PullUp 4,7kOhm |SDA |
+| PF6(I2C2\_SCL)-PullUp 4,7kOhm |SCL|
+| PA12-(VCC-disable,GND-enable) |WP |
+| VCC (3,3V) |VCC | 
+|  | **_LEDS_** |
+| PA11PA10 | 12 | _GREEN__RED_ |
 |  | _UART\_DEBUG\_MODE_ |
 | 5859GND | PB6(USART1\_TX)PB7(USART1\_RX)GND | 123 | _1 (GOLDPIN\_1) __2__ 3_ |
 |  | _ST\_LINK_ |
