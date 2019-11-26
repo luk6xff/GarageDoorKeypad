@@ -29,15 +29,23 @@
 | PA12-(VCC-disable,GND-enable) |WP |
 | VCC (3,3V) |VCC | 
 |  | **_LEDS_** |
-| PA11PA10 | 12 | _GREEN__RED_ |
-|  | _UART\_DEBUG\_MODE_ |
-| 5859GND | PB6(USART1\_TX)PB7(USART1\_RX)GND | 123 | _1 (GOLDPIN\_1) __2__ 3_ |
-|  | _ST\_LINK_ |
-| 4649755GND | PA13(SWDIO)PA14(SWCLK)NRST(ACTIVE\_LOW,pullUp-3V)PB3 (SWO)GND | 12345 | _1 (GOLDPIN\_2) __2__ 3 __4__ 5_ |
-|  | _POWER\_SUPPLY_ |
-| 13,1,32,6412,31,63 | VDDA,VBAT,VDD,VDDVSSA,VSS,VSS | VCC(3,3)GND | _1__2_ |
-|  | _TRANSISTORS_ |
-| 39 | PC8 | 1-G | _TR1_ |
-| 40 | PC9 – FOR RECEIVER ONLY!!! | 1-G | _TR2_ |
+| PA11 |GREEN|
+| PA10 |RED|
+|  | **_DEBUG_UART_** |
+| PB6(USART1_TX) |GOLDPIN_1| 
+| PB7(USART1_RX) |GOLDPIN_2|
+| GND | GOLDPIN_3 |
+|  | **_ST_LINK_** |
+| PA13(SWDIO) |GOLDPIN_1|
+| PA14(SWCLK)  |GOLDPIN_2| 
+| NRST(ACTIVE_LOW,PullUp-3V) |GOLDPIN_3| 
+| PB3 (SWO) |NC|
+| GND  |GOLDPIN_5|
+|  | **_POWER_SUPPLY_** |
+| 13,1,32,64 (VDDA,VBAT,VDD,VDD) | VCC(3,3)|
+| 12,31,63 (VSSA,VSS,VSS) |GND |
+|  | **_TRANSISTORS_** |
+|PC8 | TR1 |
+|PC9 – FOR RECEIVER ONLY! | _TR2_ |
 |  |   |
 |   |   |   |   |
