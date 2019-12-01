@@ -11,14 +11,20 @@
 
 int main()
 {
-    AT24C64_MbedInit(PF_7, PF_6, PA12, AT24C64_ADDRESS, AT24C64_CHIP_SIZE, AT24C64_PAGE_SIZE);
+    //AT24C64_MbedInit(PF_7, PF_6, PA12, AT24C64_ADDRESS, AT24C64_CHIP_SIZE, AT24C64_PAGE_SIZE);
 
+    Serial dbg(PB6, PB7); // tx, rx
+    dbg.baud(9600);
+
+    dbg.printf("HELLO from GarageDoorKeypad app!");
     DigitalOut ledGreen(PA11);
 
-    while(1) {
+    while(1)
+    {
       ledGreen = 1;
-      wait_us(1000*1000);
+      wait_us(3000*1000);
       ledGreen = 0;
-      wait_us(1000*1000);
+      //wait_us(1000*1000);
+      //dbg.printf("HELLO");
     }
 }
