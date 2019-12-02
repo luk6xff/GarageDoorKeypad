@@ -11,8 +11,6 @@
 
 int main()
 {
-    //AT24C64_MbedInit(PF_7, PF_6, PA12, AT24C64_ADDRESS, AT24C64_CHIP_SIZE, AT24C64_PAGE_SIZE);
-
     Serial dbg(PB6, PB7); // tx, rx
     dbg.baud(9600);
 

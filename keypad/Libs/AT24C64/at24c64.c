@@ -2,54 +2,54 @@
 
 
 //-----------------------------------------------------------------------------
-static uint8_t AT24C64_ChipAddr = 0;
-static size_t AT24C64_ChipSize = 0; /*bytes*/
-static size_t AT24C64_PageSize = 0; /*bytes*/
+static uint8_t AT24C64_chip_addr= 0;
+static size_t AT24C64_chip_size = 0; /*bytes*/
+static size_t AT24C64_page_size = 0; /*bytes*/
 
 
 //-----------------------------------------------------------------------------
-void AT24C64_Init(uint8_t chipAddr, size_t chipSize, size_t pageSize)
+void at24c64_init(uint8_t chipAddr, size_t chip_size, size_t page_size)
 {
-    AT24C64_ChipAddr = chipAddr;
-    AT24C64_ChipSize = chipSize;
-    AT24C64_PageSize = pageSize;
+    AT24C64_chip_addr= chipAddr;
+    AT24C64_chip_size = chip_size;
+    AT24C64_page_size = page_size;
 
-    AT24C64_IoInit();
+    at24c64_io_init();
 }
 
 //-----------------------------------------------------------------------------
-void AT24C64_DeInit(void)
+void at24c64_deinit(void)
 {
-    AT24C64_IoDeInit();
+    at24c64_io_deinit();
 }
 
 //-----------------------------------------------------------------------------
-AT24C64Status AT24C64_WriteByte(uint16_t addr, uint8_t data)
+AT24C64Status at24c64_write_bytes(uint16_t addr, uint8_t data)
 {
-    return AT24C64_WriteBuffer(addr, &data, 1);
+    return at24c64_write_buffer(addr, &data, 1);
 }
 
 //-----------------------------------------------------------------------------
-AT24C64Status AT24C64_ReadByte(uint16_t addr, uint8_t* data)
+AT24C64Status at24c64_read_byte(uint16_t addr, uint8_t* data)
 { 
     AT24C64Status ret = AT24C64_ERR;
     if (data)
     {
-        ret = AT24C64_ReadBuffer(addr, data, 1);
+        ret = at24c64_read_buffer(addr, data, 1);
     }
     return ret;
 }
 
 //-----------------------------------------------------------------------------
-AT24C64Status AT24C64_WritePage(uint16_t addr, uint8_t* buf, size_t bufSize)
+AT24C64Status at24c64_write_page(uint16_t addr, uint8_t* buf, size_t buf_size)
 {
     AT24C64Status ret = AT24C64_ERR;
     // Write full page buffers.
-    size_t bufferCount = bufSize / AT24C64_PageSize;
+    size_t bufferCount = buf_size / AT24C64_page_size;
     for (size_t i = 0; i < bufferCount; i++)
     {
-        uint8_t offset = i * AT24C64_PageSize;
-        ret = AT24C64_WriteBufferr(addr + offset, buf + offset, AT24C64_PageSize);
+        uint8_t offset = i * AT24C64_page_size;
+        ret = at24c64_write_bufferr(addr + offset, buf + offset, AT24C64_page_size);
         if (ret != AT24C64_NOERR)
         {
             return ret;
@@ -57,19 +57,19 @@ AT24C64Status AT24C64_WritePage(uint16_t addr, uint8_t* buf, size_t bufSize)
     }
 
     // Write remaining bytes.
-    uint8_t remainingBytes = bufSize % AT24C64_PageSize;
-    uint8_t offset = bufSize - remainingBytes;
-    return AT24C64_WriteBuffer(addr + offset, buf + offset, remainingBytes);  
+    uint8_t remainingBytes = buf_size % AT24C64_page_size;
+    uint8_t offset = buf_size - remainingBytes;
+    return at24c64_write_buffer(addr + offset, buf + offset, remainingBytes);  
 }
 
 //-----------------------------------------------------------------------------
-bool AT24C64_CheckSpace(uint16_t addr, size_t size)
+bool at24c64_check_space(uint16_t addr, size_t size)
 {
     // Only check if chip size is non-zero.
-    if (AT24C64_ChipSize > 0) {
+    if (AT24C64_chip_size > 0) {
         // Check that the address start in the chip and doesn't
         // extend too broad
-        if ((addr >= AT24C64_ChipSize) || ((addr + size) >= AT24C64_ChipSize))
+        if ((addr >= AT24C64_chip_size) || ((addr + size) >= AT24C64_chip_size))
         {
             return false;
         }

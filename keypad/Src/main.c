@@ -23,7 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "Libs/AT24C64/platform/stm32cube/at24c64-cube.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -33,7 +33,10 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define AT24C64_ADDRESS 0xA0   /* |1|0|1|0|A2|A1|A0|R/W| */
+#define AT24C64_PAGE_SIZE 32
+#define AT24C64_NR_OF_PAGES 256
+#define AT24C64_CHIP_SIZE (AT24C64_PAGE_SIZE*AT24C64_NR_OF_PAGES)
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -100,7 +103,8 @@ int main(void)
   MX_USART1_UART_Init();
   MX_SPI2_Init();
   /* USER CODE BEGIN 2 */
-
+  // Drivers initialization
+  at24c64_cube_init(&hi2c2, AT24C64_ADDRESS, AT24C64_CHIP_SIZE, AT24C64_PAGE_SIZE);
   /* USER CODE END 2 */
 
   /* Infinite loop */

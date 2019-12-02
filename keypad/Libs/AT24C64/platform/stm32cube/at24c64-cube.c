@@ -1,58 +1,47 @@
-#include "at24c64-mbed.h"
+#include "at24c64-cube.h"
 
-
-
-/**
- * I2C Interface
- */
-static I2C* _i2c;
-
-/**
- * AT24Cxx Write protection pin
- */
-static DigitalOut* _wp;
-
-
+// I2C handle
+I2C_HandleTypeDef* _i2c;
 
 //-----------------------------------------------------------------------------
-void AT24C64_MbedInit(PinName sda, PinName scl, PinName wp, 
-                      uint8_t chipAddr, size_t chipSize, size_t pageSize)
+void at24c64_cube_init(I2C_HandleTypeDef* i2c,
+                      uint8_t chip_addr, size_t chip_size, size_t page_size)
 {
-    _i2c = new I2C(sda, scl);
-    _wp = new DigitalOut(wp); 
-    AT24C64_Init(chipAddr, chipSize, pageSize);
+	// I2C already initialized
+	_i2c = i2c;
+    at24c64_init(chip_addr, chip_size, page_size);
 }
 
 //-----------------------------------------------------------------------------
-void AT24C64_MbedDeInit(void)
+void at24c64_cube_deinit(void)
 {
-    AT24C64_DeInit();
+    at24c64_deinit();
 }
 
 //-----------------------------------------------------------------------------
-AT24C64Status AT24C64_IoInit()
+AT24C64Status at24c64_io_init()
 {
-    // Set I2C frequency
-    _i2c->frequency(400000);
+	// Empty
+    return AT24C64_NOERR;
 }
 
 //-----------------------------------------------------------------------------
-AT24C64Status AT24C64_IoDeInit()
+AT24C64Status at24c64_io_deinit()
 {
     // Empty
     return AT24C64_NOERR;
 }
 
 //-----------------------------------------------------------------------------
-AT24C64Status AT24C64_WriteBuffer(uint16_t addr, uint8_t* buf, size_t bufSize)
+AT24C64Status at24c64_write_buffer(uint16_t addr, uint8_t* buf, size_t buf_size)
 {
     // Check space
-    if (!AT24C64_CheckSpace(addr, bufSize))
+	if (!at24c64_check_space(addr, buf_size))
     {
         return AT24C64_OUT_OF_RANGE;
     }
 
-    int ack = _i2c->write((int)addr, (char*)buf, bufSize);
+    int ack = HAL_I2C_Master_Transmit(_i2c, addr, buf, buf_size, 1000);
     if (ack != 0)
     {
         return AT24C64_ERR;
@@ -61,9 +50,9 @@ AT24C64Status AT24C64_WriteBuffer(uint16_t addr, uint8_t* buf, size_t bufSize)
 }
 
 //-----------------------------------------------------------------------------
-AT24C64Status AT24C64_ReadBuffer(uint16_t addr, uint8_t* buf, size_t bufSize)
+AT24C64Status at24c64_read_buffer(uint16_t addr, uint8_t* buf, size_t buf_size)
 {
-    int retVal = _i2c->read(addr, (char*)buf, bufSize);
+    int retVal = HAL_I2C_Master_Receive(_i2c, addr, buf, buf_size, 1000);
     if (retVal != 0)
     {
         return AT24C64_ERR;
@@ -72,7 +61,7 @@ AT24C64Status AT24C64_ReadBuffer(uint16_t addr, uint8_t* buf, size_t bufSize)
 }
 
 //-----------------------------------------------------------------------------
-void AT24C64_EnableWriteProtection(bool enable)
+void at24c64_enable_wp(bool enable)
 {
     if (enable)
     {
@@ -84,9 +73,10 @@ void AT24C64_EnableWriteProtection(bool enable)
 
 
 //-----------------------------------------------------------------------------
-void AT24C64_DelayMs(uint32_t delayMs)
+void at24c64_delay_ms(uint32_t delay_ms)
 {
-    wait_us(delayMs*1000);
+	  uint32_t tickstart_ms = HAL_GetTick();
+	  while((HAL_GetTick()-tickstart_ms) < delay_ms);
 }
 
 //-----------------------------------------------------------------------------

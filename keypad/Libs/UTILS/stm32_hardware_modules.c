@@ -3,8 +3,9 @@
 #include "stm_lib/inc/stm32f0xx_usart.h"
 #include "stm_lib/inc/stm32f0xx_spi.h"
 #include "string.h"
-#include "nRF24L01+.h"
 #include "stdio.h"
+
+#include "../NRF24L01+/nrf24l01.h"
 #include "AT24c64.h"
 #include "stm_lib/inc/stm32f0xx_syscfg.h"
 
@@ -108,7 +109,7 @@ void SPI2_For_NRF24L01_init(void) {
 	 | SPI_CR2_RXNEIE*/; // interrupts for test , then DMA
 	///////////////////////////////////////////////////////////////SPI2->CR1 |= SPI_CR1_SPE; // enable SPI
 
-	/* Wybranie parametrów pracy kontrolera SPI1 */
+	/* Wybranie parametrï¿½w pracy kontrolera SPI1 */
 	SPI_InitTypeDef SPI_InitStructure;
 	SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
 	SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
