@@ -125,6 +125,7 @@ int main(void)
   // Drivers initialization
   at24c64_cube_init(&hi2c2, AT24Cx_WP_GPIO_Port, AT24Cx_WP_Pin, AT24C64_ADDRESS, AT24C64_CHIP_SIZE, AT24C64_PAGE_SIZE);
   nrf24l01_cube_init(&hspi2, &huart1, NRF24L01_CE_GPIO_Port, NRF24L01_CE_Pin, NRF24L01_CSN_GPIO_Port, NRF24L01_CSN_Pin);
+  nrf24l01_enable();
   if (nrf24l01_is_connected())
   {
 	  HAL_UART_Transmit(&huart1, nrf24l01_connected, sizeof(nrf24l01_connected), 100);
@@ -350,7 +351,7 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin : NRF24L01_CSN_Pin */
   GPIO_InitStruct.Pin = NRF24L01_CSN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(NRF24L01_CSN_GPIO_Port, &GPIO_InitStruct);
 
