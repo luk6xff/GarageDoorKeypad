@@ -15,30 +15,30 @@ typedef uint8_t BYTE;
 #define DATA_PIPE_LENGTH 5
 
 /* COMMANDS */
-#define R_REGISTER 0x00  		 // Read command and status register (0b000AAAAAA) where AAAAA = 5 bit Register Map Address
-#define W_REGISTER 0x20          // Write command and status registers.LSB AAAAA = 5 bit Register Map Address
-#define R_RX_PAYLOAD 0x61        // Read RX-payload: 1-32 bytes. A read operation always starts at byte 0. Payload is deleted from FIFO after it is read. Used in RX mode
-#define W_TX_PAYLOAD 0xA0 	     // Write TX-payload: 1-32 bytes. A write operation always starts at byte 0 used in TX payload.
+#define R_REGISTER 0x00  		 // nrf24l01_read command and status register (0b000AAAAAA) where AAAAA = 5 bit Register Map Address
+#define W_REGISTER 0x20          // nrf24l01_write command and status registers.LSB AAAAA = 5 bit Register Map Address
+#define R_RX_PAYLOAD 0x61        // nrf24l01_read RX-payload: 1-32 bytes. A nrf24l01_read operation always starts at byte 0. Payload is deleted from FIFO after it is nrf24l01_read. Used in RX mode
+#define W_TX_PAYLOAD 0xA0 	     // nrf24l01_write TX-payload: 1-32 bytes. A nrf24l01_write operation always starts at byte 0 used in TX payload.
 #define FLUSH_TX 0xE1     		 // Flush TX FIFO, used in TX mode
 #define FLUSH_RX 0xE2    		 // Flush RX FIFO, used in RX mode
 #define REUSE_TX_PL 0xE3 		 // Used for a PTX deviceReuse last transmitted payload.TX payload reuse is active until W_TX_PAYLOAD or FLUSH TX is executed.
-#define R_RX_PL_WID 0x60 		 // Read RX payload width for the top R_RX_PAYLOAD in the RX FIFO. Note: Flush RX FIFO if the read value is larger than 32 bytes.
-#define W_ACK_PAYLOAD 0xA8 		 // (0b1010 1PPP)Used in RX mode. Write Payload to be transmitted together with ACK packet on PIPE PPP. (PPP valid in the range from 000 to 101).
+#define R_RX_PL_WID 0x60 		 // nrf24l01_read RX payload length for the top R_RX_PAYLOAD in the RX FIFO. Note: Flush RX FIFO if the nrf24l01_read value is larger than 32 bytes.
+#define W_ACK_PAYLOAD 0xA8 		 // (0b1010 1PPP)Used in RX mode. nrf24l01_write Payload to be transmitted together with ACK packet on PIPE PPP. (PPP valid in the range from 000 to 101).
 #define W_TX_PAYLOAD_NO_ACK 0xB0 // Used in TX mode. Disables AUTOACK on this specific packet.
-#define NOP 0xFF                 // No Operation. Might be used to read the STATUS register
+#define NOP 0xFF                 // No Operation. Might be used to nrf24l01_read the STATUS register
 
 
 typedef enum
 {
-	READ = R_REGISTER, //read command and status register (0b000AAAAAA) where AAAAA = 5 bit Register Map Address
-	WRITE = W_REGISTER, //Write command and status registers.LSB AAAAA = 5 bit Register Map Address
-	READ_PAYLOAD = R_RX_PAYLOAD, //Read RX-payload: 1 � 32 bytes. A read operation always starts at byte 0. Payload is deleted from FIFO after it is read. Used in RX mode
-	WRITE_PAYLOAD = W_TX_PAYLOAD, //Write TX-payload: 1 � 32 bytes. A write operation always starts at byte 0 used in TX payload.
+	READ = R_REGISTER, //nrf24l01_read command and status register (0b000AAAAAA) where AAAAA = 5 bit Register Map Address
+	WRITE = W_REGISTER, //nrf24l01_write command and status registers.LSB AAAAA = 5 bit Register Map Address
+	READ_PAYLOAD = R_RX_PAYLOAD, //nrf24l01_read RX-payload: 1 � 32 bytes. A nrf24l01_read operation always starts at byte 0. Payload is deleted from FIFO after it is nrf24l01_read. Used in RX mode
+	WRITE_PAYLOAD = W_TX_PAYLOAD, //nrf24l01_write TX-payload: 1 � 32 bytes. A nrf24l01_write operation always starts at byte 0 used in TX payload.
 	FLUSH__TX = FLUSH_TX, //Flush TX FIFO, used in TX mode
 	FLUSH__RX = FLUSH_RX, //Flush RX FIFO, used in RX mode
 	REUSE_LAST_TX_PAYLOAD = REUSE_TX_PL, //Used for a PTX deviceReuse last transmitted payload.TX payload reuse is active until W_TX_PAYLOAD or FLUSH TX is executed.
-	READ_RX_PAYLOAD_WIDTH = R_RX_PL_WID, //Read RX payload width for the top R_RX_PAYLOAD in the RX FIFO. Note: Flush RX FIFO if the read value is larger than 32 bytes.
-	WRITE_PAYLOAD_WITH_ACK = W_ACK_PAYLOAD, //(0b1010 1PPP)Used in RX mode. Write Payload to be transmitted together with ACK packet on PIPE PPP. (PPP valid in the range from 000 to 101).
+	READ_RX_PAYLOAD_WIDTH = R_RX_PL_WID, //nrf24l01_read RX payload length for the top R_RX_PAYLOAD in the RX FIFO. Note: Flush RX FIFO if the nrf24l01_read value is larger than 32 bytes.
+	WRITE_PAYLOAD_WITH_ACK = W_ACK_PAYLOAD, //(0b1010 1PPP)Used in RX mode. nrf24l01_write Payload to be transmitted together with ACK packet on PIPE PPP. (PPP valid in the range from 000 to 101).
 	DISABLE_AUTO_ACK = W_TX_PAYLOAD_NO_ACK, //Used in TX mode. Disables AUTOACK on this specific packet.
 	DO_NOTHING = NOP
 } _SPI_COMMAND_Reg;
@@ -345,13 +345,13 @@ typedef struct
 	STATUS_Reg STATUS;
 	OBSERVE_TX_Reg OBSERVE_TX;
 	RPD_Reg RPD;
-	BYTE RX_ADDR_P0[DATA_PIPE_LENGTH]; //0x0A  // write the number of bytes defined in SETUP_AW (AW) // LSB written first
+	BYTE RX_ADDR_P0[DATA_PIPE_LENGTH]; //0x0A  // nrf24l01_write the number of bytes defined in SETUP_AW (AW) // LSB written first
 	BYTE RX_ADDR_P1[DATA_PIPE_LENGTH]; //0x0B
 	BYTE RX_ADDR_P2[1];
 	BYTE RX_ADDR_P3[1];
 	BYTE RX_ADDR_P4[1];
 	BYTE RX_ADDR_P5[1];
-	BYTE TX_ADDR[DATA_PIPE_LENGTH]; //0x10 // write the number of bytes defined in SETUP_AW (AW) // LSB written first
+	BYTE TX_ADDR[DATA_PIPE_LENGTH]; //0x10 // nrf24l01_write the number of bytes defined in SETUP_AW (AW) // LSB written first
 	RX_PW_P0_Reg RX_PW_P0;
 	RX_PW_P1_Reg RX_PW_P1;
 	RX_PW_P2_Reg RX_PW_P2;

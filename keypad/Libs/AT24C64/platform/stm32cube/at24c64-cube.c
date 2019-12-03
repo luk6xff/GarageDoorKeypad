@@ -1,14 +1,19 @@
 #include "at24c64-cube.h"
 
 // I2C handle
-I2C_HandleTypeDef* _i2c;
+static I2C_HandleTypeDef* _i2c;
+static GPIO_TypeDef* _wp_port;
+static uint16_t _wp_pin;
 
 //-----------------------------------------------------------------------------
-void at24c64_cube_init(I2C_HandleTypeDef* i2c,
-                      uint8_t chip_addr, size_t chip_size, size_t page_size)
+void at24c64_cube_init(I2C_HandleTypeDef* i2c, GPIO_TypeDef* GPIO_WP_Port, uint16_t GPIO_WP_Pin,
+		   	   	   	   uint8_t chip_addr, size_t chip_size, size_t page_size)
 {
 	// I2C already initialized
 	_i2c = i2c;
+	// GPIO
+	_wp_port = GPIO_WP_Port;
+	_wp_pin = GPIO_WP_Pin;
     at24c64_init(chip_addr, chip_size, page_size);
 }
 
@@ -65,10 +70,10 @@ void at24c64_enable_wp(bool enable)
 {
     if (enable)
     {
-        *_wp = 1;
+    	HAL_GPIO_WritePin(_wp_port, _wp_pin, GPIO_PIN_SET);
         return;
     }
-    *_wp = 0;
+	HAL_GPIO_WritePin(_wp_port, _wp_pin, GPIO_PIN_RESET);
 }
 
 

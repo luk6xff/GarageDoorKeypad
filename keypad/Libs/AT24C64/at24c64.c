@@ -49,7 +49,7 @@ AT24C64Status at24c64_write_page(uint16_t addr, uint8_t* buf, size_t buf_size)
     for (size_t i = 0; i < bufferCount; i++)
     {
         uint8_t offset = i * AT24C64_page_size;
-        ret = at24c64_write_bufferr(addr + offset, buf + offset, AT24C64_page_size);
+        ret = at24c64_write_buffer(addr + offset, buf + offset, AT24C64_page_size);
         if (ret != AT24C64_NOERR)
         {
             return ret;

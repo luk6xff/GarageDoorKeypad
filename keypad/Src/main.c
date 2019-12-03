@@ -23,7 +23,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "Libs/AT24C64/platform/stm32cube/at24c64-cube.h"
+#include "at24c64-cube.h"
+#include "nrf24l01-cube.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -52,7 +53,22 @@ SPI_HandleTypeDef hspi2;
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
+#ifdef __GNUC__
+/* With GCC, small printf (option LD Linker->Libraries->Small printf
+   set to 'Yes') calls __io_putchar() */
+#define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
+#else
+#define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
+#endif /* __GNUC__ */
+// Retargets the C library printf function to the UART.
+PUTCHAR_PROTOTYPE
+{
+  /* Place your implementation of fputc here */
+  /* e.g. write a character to the USART2 and Loop until the end of transmission */
+  HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, 0xFFFF);
 
+  return ch;
+}
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -67,7 +83,10 @@ static void MX_SPI2_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+const uint8_t green_led[] = {"GREEN_LED\r\n"};
+const uint8_t red_led[] = {"RED_LED\r\n"};
+const uint8_t nrf24l01_connected[] = "NRF24L01+ module connected properly\r\n";
+const uint8_t nrf24l01_not_connected[] = "NRF24L01+ module NOT connected!!!\r\n";
 /* USER CODE END 0 */
 
 /**
@@ -104,13 +123,30 @@ int main(void)
   MX_SPI2_Init();
   /* USER CODE BEGIN 2 */
   // Drivers initialization
-  at24c64_cube_init(&hi2c2, AT24C64_ADDRESS, AT24C64_CHIP_SIZE, AT24C64_PAGE_SIZE);
+  at24c64_cube_init(&hi2c2, AT24Cx_WP_GPIO_Port, AT24Cx_WP_Pin, AT24C64_ADDRESS, AT24C64_CHIP_SIZE, AT24C64_PAGE_SIZE);
+  nrf24l01_cube_init(&hspi2, &huart1, NRF24L01_CE_GPIO_Port, NRF24L01_CE_Pin, NRF24L01_CSN_GPIO_Port, NRF24L01_CSN_Pin);
+  if (nrf24l01_is_connected())
+  {
+	  HAL_UART_Transmit(&huart1, nrf24l01_connected, sizeof(nrf24l01_connected), 100);
+  }
+  else
+  {
+	  HAL_UART_Transmit(&huart1, nrf24l01_not_connected, sizeof(nrf24l01_not_connected), 100);
+  }
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  nrf24l01_print_all_regs();
   while (1)
   {
+
+	  nrf24l01_delay_ms(1000);
+	  HAL_GPIO_TogglePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin);
+	  HAL_UART_Transmit(&huart1, green_led, sizeof(green_led), 100);
+	  nrf24l01_delay_ms(1000);
+	  HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
+	  HAL_UART_Transmit(&huart1, red_led, sizeof(red_led), 100);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -226,7 +262,7 @@ static void MX_SPI2_Init(void)
   hspi2.Init.DataSize = SPI_DATASIZE_4BIT;
   hspi2.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi2.Init.CLKPhase = SPI_PHASE_1EDGE;
-  hspi2.Init.NSS = SPI_NSS_HARD_OUTPUT;
+  hspi2.Init.NSS = SPI_NSS_SOFT;
   hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
   hspi2.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi2.Init.TIMode = SPI_TIMODE_DISABLE;
@@ -260,7 +296,7 @@ static void MX_USART1_UART_Init(void)
 
   /* USER CODE END USART1_Init 1 */
   huart1.Instance = USART1;
-  huart1.Init.BaudRate = 38400;
+  huart1.Init.BaudRate = 9600;
   huart1.Init.WordLength = UART_WORDLENGTH_8B;
   huart1.Init.StopBits = UART_STOPBITS_1;
   huart1.Init.Parity = UART_PARITY_NONE;
@@ -295,6 +331,9 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOF_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(NRF24L01_CSN_GPIO_Port, NRF24L01_CSN_Pin, GPIO_PIN_SET);
+
+  /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, NRF24L01_CE_Pin|TR1_Pin|TR2_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
@@ -307,6 +346,13 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : NRF24L01_CSN_Pin */
+  GPIO_InitStruct.Pin = NRF24L01_CSN_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(NRF24L01_CSN_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : NRF24L01_CE_Pin TR1_Pin TR2_Pin */
   GPIO_InitStruct.Pin = NRF24L01_CE_Pin|TR1_Pin|TR2_Pin;

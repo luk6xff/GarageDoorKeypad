@@ -74,8 +74,8 @@ void Error_Handler(void);
 #define KEY_G_GPIO_Port GPIOA
 #define KEY_H_Pin GPIO_PIN_7
 #define KEY_H_GPIO_Port GPIOA
-#define NRF24L01_NSS_Pin GPIO_PIN_12
-#define NRF24L01_NSS_GPIO_Port GPIOB
+#define NRF24L01_CSN_Pin GPIO_PIN_12
+#define NRF24L01_CSN_GPIO_Port GPIOB
 #define NRF24L01_SCK_Pin GPIO_PIN_13
 #define NRF24L01_SCK_GPIO_Port GPIOB
 #define NRF24L01_MISO_Pin GPIO_PIN_14
