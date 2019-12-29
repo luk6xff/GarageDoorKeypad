@@ -23,7 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "at24c64-cube.h"
+#include "at24cxx-cube.h"
 #include "nrf24l01-cube.h"
 /* USER CODE END Includes */
 
@@ -34,10 +34,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define AT24C64_ADDRESS 0xA0   /* |1|0|1|0|A2|A1|A0|R/W| */
-#define AT24C64_PAGE_SIZE 32
-#define AT24C64_NR_OF_PAGES 256
-#define AT24C64_CHIP_SIZE (AT24C64_PAGE_SIZE*AT24C64_NR_OF_PAGES)
+#define AT24C64_I2C_ADDR 0xA0   /* |1|0|1|0|A2|A1|A0|R/W| */
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -123,7 +120,22 @@ int main(void)
   MX_SPI2_Init();
   /* USER CODE BEGIN 2 */
   // Drivers initialization
-  at24c64_cube_init(&hi2c2, AT24Cx_WP_GPIO_Port, AT24Cx_WP_Pin, AT24C64_ADDRESS, AT24C64_CHIP_SIZE, AT24C64_PAGE_SIZE);
+  // AT24C64 EEPROM
+  at24cxx_cube at24c64_cube =
+  {
+		  .i2c = &hi2c2,
+		  .gpio_wp_port = AT24Cx_WP_GPIO_Port,
+		  .gpio_wp_pin = AT24Cx_WP_Pin,
+  };
+
+  at24cxx at24c64 =
+  {
+      .type = AT24C64,
+      .addr = AT24C64_I2C_ADDR,
+  };
+  at24cxx_cube_init(&at24c64, &at24c64_cube);
+
+  // NRF24LO1
   nrf24l01_cube_init(&hspi2, &huart1, NRF24L01_CE_GPIO_Port, NRF24L01_CE_Pin, NRF24L01_CSN_GPIO_Port, NRF24L01_CSN_Pin);
   nrf24l01_enable();
   if (nrf24l01_is_connected())

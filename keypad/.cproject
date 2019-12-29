@@ -44,8 +44,8 @@
 									<listOptionValue builtIn="false" value="/home/igbt6/Tools/STM32/STM32Cube/Repository/STM32Cube_FW_F0_V1.10.1/Drivers/CMSIS/Include"/>
 									<listOptionValue builtIn="false" value="/home/igbt6/Tools/STM32/STM32Cube/Repository/STM32Cube_FW_F0_V1.10.1/Drivers/STM32F0xx_HAL_Driver/Inc"/>
 									<listOptionValue builtIn="false" value="/home/igbt6/Tools/STM32/STM32Cube/Repository/STM32Cube_FW_F0_V1.10.1/Drivers/STM32F0xx_HAL_Driver/Inc/Legacy"/>
-									<listOptionValue builtIn="false" value="/home/igbt6/Projects/GarageDoorKeypad/keypad/Libs/AT24C64/platform/stm32cube"/>
-									<listOptionValue builtIn="false" value="/home/igbt6/Projects/GarageDoorKeypad/keypad/Libs/NRF24L01+/platform/stm32cube"/>
+									<listOptionValue builtIn="false" value="/home/igbt6/Projects/GarageDoorKeypad/libs/AT24CXX/platform/stm32cube"/>
+									<listOptionValue builtIn="false" value="/home/igbt6/Projects/GarageDoorKeypad/libs/NRF24L01+/platform/stm32cube"/>
 								</option>
 								<inputType id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c.2052267339" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c"/>
 							</tool>
@@ -74,9 +74,9 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
+						<entry excluding="platform/mbed/" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="AT24CXX"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
-						<entry excluding="platform/mbed/" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="Libs/AT24C64"/>
-						<entry excluding="platform/mbed/" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="Libs/NRF24L01+"/>
+						<entry excluding="platform/mbed/" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="NRF24L01+"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Src"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Startup"/>
 					</sourceEntries>

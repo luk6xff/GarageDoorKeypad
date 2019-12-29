@@ -15,6 +15,7 @@ uint8_t codeToSend[4];
 // private methods
 //leds
 
+#if 0
 typedef enum {
 	GREEN_LED, RED_LED
 } eKeyboardLeds;
@@ -350,3 +351,5 @@ void vStartKeyboardTask(unsigned portBASE_TYPE uxPriority) {
 
  }
  */
+
+#endif
