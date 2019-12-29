@@ -23,8 +23,9 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "at24cxx-cube.h"
-#include "nrf24l01-cube.h"
+//#include "at24cxx-cube.h"
+//#include "nrf24l01-cube.h"
+#include "KEYPAD_3x5/keypad3x5.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -121,43 +122,43 @@ int main(void)
   /* USER CODE BEGIN 2 */
   // Drivers initialization
   // AT24C64 EEPROM
-  at24cxx_cube at24c64_cube =
-  {
-		  .i2c = &hi2c2,
-		  .gpio_wp_port = AT24Cx_WP_GPIO_Port,
-		  .gpio_wp_pin = AT24Cx_WP_Pin,
-  };
-
-  at24cxx at24c64 =
-  {
-      .type = AT24C64,
-      .addr = AT24C64_I2C_ADDR,
-  };
-  at24cxx_cube_init(&at24c64, &at24c64_cube);
-
-  // NRF24LO1
-  nrf24l01_cube_init(&hspi2, &huart1, NRF24L01_CE_GPIO_Port, NRF24L01_CE_Pin, NRF24L01_CSN_GPIO_Port, NRF24L01_CSN_Pin);
-  nrf24l01_enable();
-  if (nrf24l01_is_connected())
-  {
-	  HAL_UART_Transmit(&huart1, nrf24l01_connected, sizeof(nrf24l01_connected), 100);
-  }
-  else
-  {
-	  HAL_UART_Transmit(&huart1, nrf24l01_not_connected, sizeof(nrf24l01_not_connected), 100);
-  }
-  /* USER CODE END 2 */
-
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-  nrf24l01_print_all_regs();
+//  at24cxx_cube at24c64_cube =
+//  {
+//		  .i2c = &hi2c2,
+//		  .gpio_wp_port = AT24Cx_WP_GPIO_Port,
+//		  .gpio_wp_pin = AT24Cx_WP_Pin,
+//  };
+//
+//  at24cxx at24c64 =
+//  {
+//      .type = AT24C64,
+//      .addr = AT24C64_I2C_ADDR,
+//  };
+//  at24cxx_cube_init(&at24c64, &at24c64_cube);
+//
+//  // NRF24LO1
+//  nrf24l01_cube_init(&hspi2, &huart1, NRF24L01_CE_GPIO_Port, NRF24L01_CE_Pin, NRF24L01_CSN_GPIO_Port, NRF24L01_CSN_Pin);
+//  nrf24l01_enable();
+//  if (nrf24l01_is_connected())
+//  {
+//	  HAL_UART_Transmit(&huart1, nrf24l01_connected, sizeof(nrf24l01_connected), 100);
+//  }
+//  else
+//  {
+//	  HAL_UART_Transmit(&huart1, nrf24l01_not_connected, sizeof(nrf24l01_not_connected), 100);
+//  }
+//  /* USER CODE END 2 */
+//
+//  /* Infinite loop */
+//  /* USER CODE BEGIN WHILE */
+//  nrf24l01_print_all_regs();
   while (1)
   {
 
-	  nrf24l01_delay_ms(1000);
+	  HAL_Delay(1000);
 	  HAL_GPIO_TogglePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin);
 	  HAL_UART_Transmit(&huart1, green_led, sizeof(green_led), 100);
-	  nrf24l01_delay_ms(1000);
+	  HAL_Delay(1000);
 	  HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
 	  HAL_UART_Transmit(&huart1, red_led, sizeof(red_led), 100);
     /* USER CODE END WHILE */
@@ -352,10 +353,14 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, LED_RED_Pin|LED_GREEN_Pin|AT24Cx_WP_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : KEY_A_Pin KEY_B_Pin KEY_C_Pin KEY_D_Pin 
-                           KEY_E_Pin KEY_F_Pin KEY_G_Pin KEY_H_Pin */
-  GPIO_InitStruct.Pin = KEY_A_Pin|KEY_B_Pin|KEY_C_Pin|KEY_D_Pin 
-                          |KEY_E_Pin|KEY_F_Pin|KEY_G_Pin|KEY_H_Pin;
+  /*Configure GPIO pins : KEY_A_Pin KEY_B_Pin KEY_C_Pin KEY_D_Pin */
+  GPIO_InitStruct.Pin = KEY_A_Pin|KEY_B_Pin|KEY_C_Pin|KEY_D_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : KEY_E_Pin KEY_F_Pin KEY_G_Pin KEY_H_Pin */
+  GPIO_InitStruct.Pin = KEY_E_Pin|KEY_F_Pin|KEY_G_Pin|KEY_H_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -386,6 +391,13 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI0_1_IRQn, 1, 0);
+  HAL_NVIC_EnableIRQ(EXTI0_1_IRQn);
+
+  HAL_NVIC_SetPriority(EXTI2_3_IRQn, 1, 0);
+  HAL_NVIC_EnableIRQ(EXTI2_3_IRQn);
 
 }
 

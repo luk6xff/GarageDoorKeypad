@@ -29,14 +29,9 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>AT24CXX</name>
+			<name>libs</name>
 			<type>2</type>
-			<location>/home/igbt6/Projects/GarageDoorKeypad/libs/AT24CXX</location>
-		</link>
-		<link>
-			<name>NRF24L01+</name>
-			<type>2</type>
-			<location>/home/igbt6/Projects/GarageDoorKeypad/libs/NRF24L01+</location>
+			<location>/home/igbt6/Projects/GarageDoorKeypad/libs</location>
 		</link>
 		<link>
 			<name>Drivers/STM32F0xx_HAL_Driver/stm32f0xx_hal.c</name>
