@@ -170,6 +170,14 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	set_pins_default_mode();
 }
 
+/**
+ * @brief Re-implemented EXTI Callback from stm32f0xx_hal_tim.c
+ */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+	printf("HAL_TIM_PeriodElapsedCallback: %d,\r\n", HAL_GetTick());
+}
+
 //inline static void keyboardLedsConfig(void) {
 //	GPIOA->MODER |= (GPIO_MODER_MODER10_0 | GPIO_MODER_MODER11_0); //RED PA10, GREEN PA11  OUTPUTs
 //	GPIOA->PUPDR |= (GPIO_PUPDR_PUPDR10_0 | GPIO_PUPDR_PUPDR11_0); //PULL UP
@@ -217,21 +225,6 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 //	xTimer3Semphr = xSemaphoreCreateBinary();
 //	configASSERT(xTimer3Semphr);
 //	Timer3Configuration();
-//}
-//// ext interrupts
-
-//static void enableInterruptsForInputButtons(void) {
-//	EXTI->IMR = EXTI_IMR_MR0 | EXTI_IMR_MR1 | EXTI_IMR_MR2 | EXTI_IMR_MR3;
-//	NVIC_SetPriority(EXTI0_1_IRQn, 1);
-//	NVIC_EnableIRQ(EXTI0_1_IRQn);
-//	NVIC_SetPriority(EXTI2_3_IRQn, 1);
-//	NVIC_EnableIRQ(EXTI2_3_IRQn);
-//}
-
-//static void disableInterruptsForInputButtons(void) {
-//	EXTI->IMR &= ~(EXTI_IMR_MR0 | EXTI_IMR_MR1 | EXTI_IMR_MR2 | EXTI_IMR_MR3);
-//	NVIC_DisableIRQ(EXTI0_1_IRQn);
-//	NVIC_DisableIRQ(EXTI2_3_IRQn);
 //}
 
 

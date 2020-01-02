@@ -48,6 +48,8 @@ I2C_HandleTypeDef hi2c2;
 
 SPI_HandleTypeDef hspi2;
 
+TIM_HandleTypeDef htim3;
+
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
@@ -75,6 +77,7 @@ static void MX_GPIO_Init(void);
 static void MX_I2C2_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_SPI2_Init(void);
+static void MX_TIM3_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -119,7 +122,9 @@ int main(void)
   MX_I2C2_Init();
   MX_USART1_UART_Init();
   MX_SPI2_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
+  printf("> Hello from Garage Door Keypad < --- luk6xff-2020\r\n");
   // Drivers initialization
   // AT24C64 EEPROM
 //  at24cxx_cube at24c64_cube =
@@ -295,6 +300,70 @@ static void MX_SPI2_Init(void)
 }
 
 /**
+  * @brief TIM3 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM3_Init(void)
+{
+
+  /* USER CODE BEGIN TIM3_Init 0 */
+	/**
+	 * @brief Prescaler value - Compute the prescaler value to have TIMx counter clock equal to 10000 Hz
+	 * 		To get TIM3 counter clock at 1 KHz, the Prescaler is computed as following:
+	 * 		Prescaler = (TIM3CLK / TIM3 counter clock) - 1
+	 * 		Prescaler = (SystemCoreClock /1 KHz) - 1
+	 */
+	//prescalerValue = (uint32_t)(SystemCoreClock / 1000) - 1;;
+  /* USER CODE END TIM3_Init 0 */
+
+  /* USER CODE BEGIN TIM3_Init 1 */
+
+  /* USER CODE END TIM3_Init 1 */
+//  htim3.Instance = TIM3;
+//  htim3.Init.Prescaler = prescalerValue;
+//  htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
+//  htim3.Init.Period = 999;
+//  htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+//  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+//  if (HAL_TIM_OnePulse_Init(&htim3, TIM_OPMODE_SINGLE) != HAL_OK)
+//  {
+//    Error_Handler();
+//  }
+  /* USER CODE BEGIN TIM3_Init 2 */
+  /* Compute the prescaler value to have TIM3 counter clock equal to 1000 Hz */
+  uint32_t uwPrescalerValue = (uint32_t)(SystemCoreClock / 1000) - 1;
+
+  /* Set TIMx instance */
+  htim3.Instance = TIM3;
+
+  /* Initialize TIM3 peripheral as follows:
+       + Period = 1000 - 1
+       + Prescaler = (SystemCoreClock/1000) - 1
+       + ClockDivision = 0
+       + Counter direction = Up
+  */
+  htim3.Init.Period            = 1000 - 1;
+  htim3.Init.Prescaler         = uwPrescalerValue;
+  htim3.Init.ClockDivision     = 0;
+  htim3.Init.CounterMode       = TIM_COUNTERMODE_UP;
+  htim3.Init.RepetitionCounter = 0;
+  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
+  {
+    /* Initialization Error */
+    Error_Handler();
+  }
+  if (HAL_TIM_Base_Start_IT(&htim3) != HAL_OK)
+  {
+    /* Starting Error */
+    Error_Handler();
+  }
+  /* USER CODE END TIM3_Init 2 */
+
+}
+
+/**
   * @brief USART1 Initialization Function
   * @param None
   * @retval None
@@ -339,10 +408,11 @@ static void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOA_CLK_ENABLE();
-  __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOF_CLK_ENABLE();
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, KEY_E_Pin|KEY_F_Pin|KEY_G_Pin|KEY_H_Pin 
@@ -356,6 +426,22 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, LED_RED_Pin|LED_GREEN_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pins : PC13 PC14 PC15 PC0 
+                           PC1 PC2 PC3 PC4 
+                           PC5 PC10 PC11 PC12 */
+  GPIO_InitStruct.Pin = GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15|GPIO_PIN_0 
+                          |GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4 
+                          |GPIO_PIN_5|GPIO_PIN_10|GPIO_PIN_11|GPIO_PIN_12;
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PF0 PF1 PF4 PF5 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_4|GPIO_PIN_5;
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
 
   /*Configure GPIO pins : KEY_A_Pin KEY_B_Pin KEY_C_Pin KEY_D_Pin */
   GPIO_InitStruct.Pin = KEY_A_Pin|KEY_B_Pin|KEY_C_Pin|KEY_D_Pin;
@@ -371,6 +457,16 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PB0 PB1 PB2 PB10 
+                           PB11 PB3 PB4 PB5 
+                           PB8 PB9 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_10 
+                          |GPIO_PIN_11|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5 
+                          |GPIO_PIN_8|GPIO_PIN_9;
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pin : NRF24L01_CSN_Pin */
   GPIO_InitStruct.Pin = NRF24L01_CSN_Pin;
@@ -391,6 +487,18 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(NRF24L01_IRQ_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PA8 PA9 PA15 */
+  GPIO_InitStruct.Pin = GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_15;
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PD2 */
+  GPIO_InitStruct.Pin = GPIO_PIN_2;
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI0_1_IRQn, 1, 0);

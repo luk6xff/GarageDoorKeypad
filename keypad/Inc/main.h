@@ -58,6 +58,7 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define prescalerValue 7999
 #define KEY_A_Pin GPIO_PIN_0
 #define KEY_A_GPIO_Port GPIOA
 #define KEY_A_EXTI_IRQn EXTI0_1_IRQn
