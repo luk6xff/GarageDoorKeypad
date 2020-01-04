@@ -1,12 +1,68 @@
 #include "keypad3x5.h"
 #include "main.h"
 
+
+//------------------------------------------------------------------------------
 #define TIME_TO_NEXT_BUTTON_PRESS    100//ms
 #define TIME_TO_CANCEL_BUTTON_PRESS_SEQUENCE    5000//ms
 #define BINARY_SEMAPHORE_LENGTH	1
 
-volatile uint16_t tickCounterForPressingButtonEvent = 0;
+//------------------------------------------------------------------------------
+static char* decode_keyboard_button(KeypadButtonPressed button)
+{
+	switch (button)
+	{
+		case BUTTON_0:
+			return "BUTTON_0";
 
+		case BUTTON_1:
+			return "BUTTON_1";
+
+		case BUTTON_2:
+			return "BUTTON_2";
+
+		case BUTTON_3:
+			return "BUTTON_3";
+
+		case BUTTON_4:
+			return "BUTTON_4";
+
+		case BUTTON_5:
+			return "BUTTON_5";
+
+		case BUTTON_6:
+			return "BUTTON_6";
+
+		case BUTTON_7:
+			return "BUTTON_7";
+
+		case BUTTON_8:
+			return "BUTTON_8";
+
+		case BUTTON_9:
+			return "BUTTON_9";
+
+		case BUTTON_P:
+			return "BUTTON_P";
+
+		case BUTTON_M:
+			return "BUTTON_M";
+
+		case BUTTON_ESC:
+			return "BUTTON_ESC";
+
+		case BUTTON_ARROW_UP:
+			return "BUTTON_ARROW_UP";
+
+		case BUTTON_ARROW_DOWN:
+			return "BUTTON_ARROW_DOWN";
+
+		default:
+			return "INVALID_BUTTON";
+	}
+}
+
+//------------------------------------------------------------------------------
 typedef struct
 {
 	uint8_t abcd_input;
@@ -24,6 +80,7 @@ typedef enum
 } KeypadLeds;
 
 
+//------------------------------------------------------------------------------
 /**
  * @brief Sets ABCD pins as pulled-up output, and EFGH to input state.
  */
@@ -35,24 +92,18 @@ static void set_pins_to_read_mode(void)
 	HAL_NVIC_DisableIRQ(EXTI0_1_IRQn);
 	HAL_NVIC_DisableIRQ(EXTI2_3_IRQn);
 
-	/*Configure GPIO pins : KEY_A_Pin KEY_B_Pin KEY_C_Pin KEY_D_Pin as OUTPUTS*/
+	/* Configure GPIO pins : KEY_A_Pin KEY_B_Pin KEY_C_Pin KEY_D_Pin as OUTPUTS*/
 	GPIO_InitStruct.Pin = KEY_A_Pin|KEY_B_Pin|KEY_C_Pin|KEY_D_Pin;
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-	GPIO_InitStruct.Pull = GPIO_PULLUP;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
 	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-	/*Configure GPIO pins : KEY_E_Pin KEY_F_Pin KEY_G_Pin KEY_H_Pin as INPUTS*/
+	/* Configure GPIO pins : KEY_E_Pin KEY_F_Pin KEY_G_Pin KEY_H_Pin as INPUTS*/
 	GPIO_InitStruct.Pin = KEY_E_Pin|KEY_F_Pin|KEY_G_Pin|KEY_H_Pin;
 	GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
 	GPIO_InitStruct.Pull = GPIO_PULLDOWN;
 	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-	/* ABCD to HIGH state */
-	HAL_GPIO_WritePin(GPIOA, KEY_A_Pin, GPIO_PIN_SET);
-	HAL_GPIO_WritePin(GPIOA, KEY_B_Pin, GPIO_PIN_SET);
-	HAL_GPIO_WritePin(GPIOA, KEY_C_Pin, GPIO_PIN_SET);
-	HAL_GPIO_WritePin(GPIOA, KEY_D_Pin, GPIO_PIN_SET);
 }
 
 
@@ -63,24 +114,22 @@ static void set_pins_to_read_mode(void)
 static void set_pins_default_mode(void)
 {
 	GPIO_InitTypeDef GPIO_InitStruct = {0};
-	/*Configure GPIO pins : KEY_A_Pin KEY_B_Pin KEY_C_Pin KEY_D_Pin as EXTI INPUTS*/
-	GPIO_InitStruct.Pin = KEY_A_Pin|KEY_B_Pin|KEY_C_Pin|KEY_D_Pin;
-	GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
-	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-	/*Configure GPIO pins : KEY_E_Pin KEY_F_Pin KEY_G_Pin KEY_H_Pin as OUTPUTS*/
+	/* Configure GPIO EFGH pin Output Level to HIGH state */
+	HAL_GPIO_WritePin(GPIOA, KEY_E_Pin|KEY_F_Pin|KEY_G_Pin|KEY_H_Pin, GPIO_PIN_SET);
+
+	/* Configure GPIO pins : KEY_E_Pin KEY_F_Pin KEY_G_Pin KEY_H_Pin as OUTPUTS*/
 	GPIO_InitStruct.Pin = KEY_E_Pin|KEY_F_Pin|KEY_G_Pin|KEY_H_Pin;
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
 	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-	/* EFGH to HIGH state */
-	HAL_GPIO_WritePin(GPIOA, KEY_E_Pin, GPIO_PIN_SET);
-	HAL_GPIO_WritePin(GPIOA, KEY_F_Pin, GPIO_PIN_SET);
-	HAL_GPIO_WritePin(GPIOA, KEY_G_Pin, GPIO_PIN_SET);
-	HAL_GPIO_WritePin(GPIOA, KEY_H_Pin, GPIO_PIN_SET);
+	/* Configure GPIO pins : KEY_A_Pin KEY_B_Pin KEY_C_Pin KEY_D_Pin as EXTI INPUTS*/
+	GPIO_InitStruct.Pin = KEY_A_Pin|KEY_B_Pin|KEY_C_Pin|KEY_D_Pin;
+	GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+	GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
 	/* EXTI interrupt init*/
 	HAL_NVIC_SetPriority(EXTI0_1_IRQn, 1, 0);
@@ -159,15 +208,16 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 		current_inputs_pressed.efgh_input = read_input_state_from_EFGH();
 		if (current_inputs_pressed.efgh_input != BUTTON_UNKNOWN_ERROR)
 		{
-			printf("ABCD_INPUT:0x%x, EFGH_INPUT:0x%x, BUTTON:%d,0x%x\r\n",
+			printf("ABCD_INPUT:0x%x, EFGH_INPUT:0x%x, SUM:%d,0x%x, BUTTON:%s\r\n",
 					current_inputs_pressed.abcd_input, current_inputs_pressed.efgh_input,
 					(KeypadButtonPressed)(current_inputs_pressed.abcd_input|current_inputs_pressed.efgh_input),
-					(KeypadButtonPressed)(current_inputs_pressed.abcd_input|current_inputs_pressed.efgh_input));
+					(KeypadButtonPressed)(current_inputs_pressed.abcd_input|current_inputs_pressed.efgh_input),
+					decode_keyboard_button(current_inputs_pressed.abcd_input|current_inputs_pressed.efgh_input));
 		}
 	}
 
 	// Reset pins to default state
-	set_pins_default_mode();
+	//set_pins_default_mode();
 }
 
 /**
@@ -272,130 +322,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 //		}
 //	}
 //}
-//
-//static void blinkGivenLed(eKeyboardLeds ledColour, uint8_t nrOfBlinks,
-//		uint16_t delayBetweenBlinks_ms) {
-//
-//	void (*ledOnCallback)(void);
-//	void (*ledOffCallback)(void);
-//	switch (ledColour) {
-//	case GREEN_LED:
-//		ledOnCallback = greenLedOn;
-//		ledOffCallback = greenLedOff;
-//		break;
-//	case RED_LED:
-//		ledOnCallback = redLedOn;
-//		ledOffCallback = redLedOff;
-//		break;
-//	default:
-//		return;
-//	}
-//	for (uint8_t i = 0; i < nrOfBlinks; i++) {
-//		(*ledOnCallback)();
-//		vTaskDelay(delayBetweenBlinks_ms / portTICK_RATE_MS);
-//		(*ledOffCallback)();
-//		vTaskDelay(delayBetweenBlinks_ms / portTICK_RATE_MS);
-//	}
-//}
-//
-//static void vTaskKeyboard(void* pvParameters) {
-//
-//	KeyboardInit();
-//	InputsPressed receivedInputState;
-//	const uint8_t nrOfDatatowaitFor = 4;
-//	uint8_t receivedDataBuffer[nrOfDatatowaitFor];
-//	static uint8_t numberOfReceivedFrames;
-//	portTickType xLastFlashTime;
-//	xLastFlashTime = xTaskGetTickCount();
-//	for (;;) {
-//		xKeyboardQueueSetMemberHandle = xQueueSelectFromSet(xKeyboardQueueSet,
-//				10 / portTICK_RATE_MS);
-//
-//		if (xKeyboardQueueSetMemberHandle == xTimer3Semphr) {
-//			//	DEBUG("*");
-//			if (xTimer3Semphr != NULL) {
-//				if (xSemaphoreTake(xTimer3Semphr,(portTickType)0)) {
-//					numberOfReceivedFrames = 0;
-//					blinkGivenLed(GREEN_LED, 3, 100);
-//					memset(receivedDataBuffer, 0, sizeof(receivedDataBuffer));
-//				}
-//			}
-//		} else if (xKeyboardQueueSetMemberHandle == xKeyboardReceivedQueue) {
-//			xQueueReceive(xKeyboardReceivedQueue, &receivedInputState, 0);
-//			//GPIOC->ODR ^= (GPIO_ODR_9); //DEBUG
-//			receivedDataBuffer[numberOfReceivedFrames] =
-//					(receivedInputState.abcd_input
-//							+ receivedInputState.efgh_input);
-//			greenLedOff();
-//			numberOfReceivedFrames++;
-//			if (numberOfReceivedFrames == nrOfDatatowaitFor) {
-//				numberOfReceivedFrames = 0;
-//				//here checking if in eeprom such value exists
-//				blinkGivenLed(RED_LED, 3, 300);
-//				//memcpy(codeToSend, receivedDataBuffer,
-//				//		sizeof(nrOfDatatowaitFor));
-//				//codeToSend[nrOfDatatowaitFor] = '\0';
-//				//	if(strcmp(codeToSend,))
-//			}
-//		} else { /*do nothing just wait 10ms  for any data*/
-//		}
-//
-//	}
-//}
-//
-//void vStartKeyboardTask(unsigned portBASE_TYPE uxPriority) {
-//	xTaskCreate(vTaskKeyboard, (signed const char*)"KEY", 160, NULL, uxPriority,
-//			NULL);
-//
-//switch (receivedDataBuffer[numberOfReceivedFrames]) { //FOR DEBUG
-// case BUTTON_0:
-// //DEBUG("0");
-// break;
-// case BUTTON_1:
-// //DEBUG("1");
-// break;
-// case BUTTON_2:
-// //DEBUG("2");
-// break;
-// case BUTTON_3:
-// //DEBUG("3");
-// break;
-// case BUTTON_4:
-// //DEBUG("4");
-// break;
-// case BUTTON_5:
-// //DEBUG("5");
-// break;
-// case BUTTON_6:
-// //DEBUG("6");
-// break;
-// case BUTTON_7:
-// //DEBUG("7");
-// break;
-// case BUTTON_8:
-// //DEBUG("8");
-// break;
-// case BUTTON_9:
-// //DEBUG("9");
-// break;
-// case BUTTON_P:
-// //DEBUG("P");
-// break;
-// case BUTTON_M:
-// //DEBUG("M");
-// break;
-// case BUTTON_ESC:
-// //DEBUG("ES");
-// break;
-// case BUTTON_ARROW_UP:
-// //DEBUG("AU");
-// break;
-// case BUTTON_ARROW_DOWN:
-// //DEBUG("AD");
-// break;
-// default:
-// DEBUG("GOW");
-// break;
-//
-// }
-//}
+
+
+//------------------------------------------------------------------------------
+void keypad3x5_init(void)
+{
+	set_pins_default_mode();
+}
+
+

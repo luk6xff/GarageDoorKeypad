@@ -126,6 +126,9 @@ int main(void)
   /* USER CODE BEGIN 2 */
   printf("> Hello from Garage Door Keypad < --- luk6xff-2020\r\n");
   // Drivers initialization
+  // KEYPAD 3x5
+  /* GPIO Ports Clock Enable */
+  keypad3x5_init();
   // AT24C64 EEPROM
 //  at24cxx_cube at24c64_cube =
 //  {

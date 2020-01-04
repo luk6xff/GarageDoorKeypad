@@ -41,6 +41,11 @@ typedef enum
 	BUTTON_ARROW_DOWN = (BUTTON_INPUT_C | BUTTON_INPUT_G) //NOT WORK
 } KeypadButtonPressed;
 
+/**
+ * @brief Keypad init function
+ */
+void keypad3x5_init(void);
+
 #ifdef __cplusplus
 }
 #endif
