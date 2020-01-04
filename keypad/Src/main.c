@@ -311,57 +311,38 @@ static void MX_TIM3_Init(void)
 {
 
   /* USER CODE BEGIN TIM3_Init 0 */
-	/**
-	 * @brief Prescaler value - Compute the prescaler value to have TIMx counter clock equal to 10000 Hz
-	 * 		To get TIM3 counter clock at 1 KHz, the Prescaler is computed as following:
-	 * 		Prescaler = (TIM3CLK / TIM3 counter clock) - 1
-	 * 		Prescaler = (SystemCoreClock /1 KHz) - 1
-	 */
-	//prescalerValue = (uint32_t)(SystemCoreClock / 1000) - 1;;
+
   /* USER CODE END TIM3_Init 0 */
 
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
   /* USER CODE BEGIN TIM3_Init 1 */
-
+  // Timer with cyclic interrupt of period 10[ms]
   /* USER CODE END TIM3_Init 1 */
-//  htim3.Instance = TIM3;
-//  htim3.Init.Prescaler = prescalerValue;
-//  htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-//  htim3.Init.Period = 999;
-//  htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-//  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
-//  if (HAL_TIM_OnePulse_Init(&htim3, TIM_OPMODE_SINGLE) != HAL_OK)
-//  {
-//    Error_Handler();
-//  }
-  /* USER CODE BEGIN TIM3_Init 2 */
-  /* Compute the prescaler value to have TIM3 counter clock equal to 1000 Hz */
-  uint32_t uwPrescalerValue = (uint32_t)(SystemCoreClock / 1000) - 1;
-
-  /* Set TIMx instance */
   htim3.Instance = TIM3;
-
-  /* Initialize TIM3 peripheral as follows:
-       + Period = 1000 - 1
-       + Prescaler = (SystemCoreClock/1000) - 1
-       + ClockDivision = 0
-       + Counter direction = Up
-  */
-  htim3.Init.Period            = 1000 - 1;
-  htim3.Init.Prescaler         = uwPrescalerValue;
-  htim3.Init.ClockDivision     = 0;
-  htim3.Init.CounterMode       = TIM_COUNTERMODE_UP;
-  htim3.Init.RepetitionCounter = 0;
+  htim3.Init.Prescaler = (SystemCoreClock)/100000-1;
+  htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim3.Init.Period = 1000-1;
+  htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
   {
-    /* Initialization Error */
     Error_Handler();
   }
-  if (HAL_TIM_Base_Start_IT(&htim3) != HAL_OK)
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK)
   {
-    /* Starting Error */
     Error_Handler();
   }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM3_Init 2 */
+  HAL_TIM_Base_Start_IT(&htim3);
   /* USER CODE END TIM3_Init 2 */
 
 }

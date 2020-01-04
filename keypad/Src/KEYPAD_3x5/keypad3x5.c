@@ -3,10 +3,30 @@
 
 
 //------------------------------------------------------------------------------
-#define TIME_TO_NEXT_BUTTON_PRESS    100//ms
-#define TIME_TO_CANCEL_BUTTON_PRESS_SEQUENCE    5000//ms
-#define BINARY_SEMAPHORE_LENGTH	1
+#define KEYPAD_TIMER_ONE_COUNT_PERIOD 	10  // ms
+#define TIME_TO_NEXT_BUTTON_PRESS     	100 // ms
+#define TIME_TO_NEXT_BUTTON_PRESS_VAL	(TIME_TO_NEXT_BUTTON_PRESS/KEYPAD_TIMER_ONE_COUNT_PERIOD)
 
+// Types
+//------------------------------------------------------------------------------
+typedef struct
+{
+	uint8_t abcd_input;
+	uint8_t efgh_input;
+} KeypadInputsPressed;
+
+// Leds
+typedef enum
+{
+	GREEN_LED,
+	RED_LED
+} KeypadLeds;
+
+// Private variables
+//------------------------------------------------------------------------------
+static volatile uint32_t keypad_timer_counter = 0;
+
+// Private functions
 //------------------------------------------------------------------------------
 static char* decode_keyboard_button(KeypadButtonPressed button)
 {
@@ -62,23 +82,23 @@ static char* decode_keyboard_button(KeypadButtonPressed button)
 	}
 }
 
+// Keypad timer
 //------------------------------------------------------------------------------
-typedef struct
+static void enable_keypad_timer(void)
 {
-	uint8_t abcd_input;
-	uint8_t efgh_input;
-} KeypadInputsPressed;
+	TIM_HandleTypeDef htim3;
+	htim3.Instance = TIM3;
+	HAL_TIM_Base_Start_IT(&htim3);
+	keypad_timer_counter = 0;
+}
 
-uint8_t codeToSend[4];
-// private methods
-//leds
-
-typedef enum
+//------------------------------------------------------------------------------
+static void disable_keypad_timer(void)
 {
-	GREEN_LED,
-	RED_LED
-} KeypadLeds;
-
+	TIM_HandleTypeDef htim3;
+	htim3.Instance = TIM3;
+	HAL_TIM_Base_Stop_IT(&htim3);
+}
 
 //------------------------------------------------------------------------------
 /**
@@ -92,10 +112,13 @@ static void set_pins_to_read_mode(void)
 	HAL_NVIC_DisableIRQ(EXTI0_1_IRQn);
 	HAL_NVIC_DisableIRQ(EXTI2_3_IRQn);
 
+	/* Configure GPIO EFGH pin Output Level to LOW (reset) state */
+	HAL_GPIO_WritePin(GPIOA, KEY_E_Pin|KEY_F_Pin|KEY_G_Pin|KEY_H_Pin, GPIO_PIN_RESET);
+
 	/* Configure GPIO pins : KEY_A_Pin KEY_B_Pin KEY_C_Pin KEY_D_Pin as OUTPUTS*/
 	GPIO_InitStruct.Pin = KEY_A_Pin|KEY_B_Pin|KEY_C_Pin|KEY_D_Pin;
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Pull = GPIO_PULLUP;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
 	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
@@ -121,7 +144,7 @@ static void set_pins_default_mode(void)
 	/* Configure GPIO pins : KEY_E_Pin KEY_F_Pin KEY_G_Pin KEY_H_Pin as OUTPUTS*/
 	GPIO_InitStruct.Pin = KEY_E_Pin|KEY_F_Pin|KEY_G_Pin|KEY_H_Pin;
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Pull = GPIO_PULLUP;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
 	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
@@ -174,9 +197,8 @@ static KeypadButtonInputs read_input_state_from_EFGH(void)
  */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-	//disableInterruptsForInputButtons();
-	//disableTimer3();
-	//enableTimer3(); //after first number was received , fire up the counter that counts to
+	disable_keypad_timer();
+
 	KeypadInputsPressed current_inputs_pressed = { BUTTON_UNKNOWN_ERROR, BUTTON_UNKNOWN_ERROR };
 	set_pins_to_read_mode();
 	if (GPIO_Pin == KEY_A_Pin)
@@ -206,26 +228,34 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 		// Set HIGH state on a given pin of ABCD row
 		HAL_GPIO_WritePin(GPIOA, GPIO_Pin, GPIO_PIN_SET);
 		current_inputs_pressed.efgh_input = read_input_state_from_EFGH();
+		// Set LOW state on a given pin of ABCD row
+		HAL_GPIO_WritePin(GPIOA, GPIO_Pin, GPIO_PIN_RESET);
 		if (current_inputs_pressed.efgh_input != BUTTON_UNKNOWN_ERROR)
 		{
-			printf("ABCD_INPUT:0x%x, EFGH_INPUT:0x%x, SUM:%d,0x%x, BUTTON:%s\r\n",
-					current_inputs_pressed.abcd_input, current_inputs_pressed.efgh_input,
-					(KeypadButtonPressed)(current_inputs_pressed.abcd_input|current_inputs_pressed.efgh_input),
-					(KeypadButtonPressed)(current_inputs_pressed.abcd_input|current_inputs_pressed.efgh_input),
-					decode_keyboard_button(current_inputs_pressed.abcd_input|current_inputs_pressed.efgh_input));
+			printf("ABCD_INPUT:0x%x, EFGH_INPUT:0x%x, SUM:%d,0x%x, %s\r\n",
+				   current_inputs_pressed.abcd_input, current_inputs_pressed.efgh_input,
+				   (KeypadButtonPressed)(current_inputs_pressed.abcd_input|current_inputs_pressed.efgh_input),
+				   (KeypadButtonPressed)(current_inputs_pressed.abcd_input|current_inputs_pressed.efgh_input),
+				   decode_keyboard_button(current_inputs_pressed.abcd_input|current_inputs_pressed.efgh_input));
 		}
 	}
-
-	// Reset pins to default state
-	//set_pins_default_mode();
+	// Enable timer for next pin readout
+	enable_keypad_timer();
 }
 
+//------------------------------------------------------------------------------
 /**
  * @brief Re-implemented EXTI Callback from stm32f0xx_hal_tim.c
  */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-	printf("HAL_TIM_PeriodElapsedCallback: %d,\r\n", HAL_GetTick());
+	//printf("HAL_TIM_PeriodElapsedCallback: %d,\r\n", HAL_GetTick());
+	keypad_timer_counter++;
+	if (keypad_timer_counter == TIME_TO_NEXT_BUTTON_PRESS_VAL)
+	{
+		// Reset pins to default state, enable pin button interrupt
+		set_pins_default_mode();
+	}
 }
 
 //inline static void keyboardLedsConfig(void) {
@@ -246,88 +276,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 //	GPIOA->BSRR = GPIO_BSRR_BR_11;
 //}
 
-//timers
-//static void enableTimer3(void)
-//{
-//	TIM3->CR1 |= TIM_CR1_CEN; //enable counter
-//	TIM3->CNT = 0;
-//	tickCounterForPressingButtonEvent = 0;
-//	NVIC_SetPriority(TIM3_IRQn, 2);
-//	NVIC_EnableIRQ(TIM3_IRQn);
-//}
-
-//static void disableTimer3(void) {
-//	TIM3->CR1 &= ~(TIM_CR1_CEN);
-//	NVIC_DisableIRQ(TIM3_IRQn);
-//}
-//
-//static void Timer3Configuration(void) {
-//	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
-//	TIM3->ARR = 100; //value that counter counts up to :1ms
-//	TIM3->BDTR = 0;
-//	TIM3->PSC = 9; // 1ms  //The counter clock frequency (CK_CNT) is equal to fCK_PSC / (PSC[15:0] + 1) // here fCK_PSC =1MHz  -> 100000 Hz
-//	TIM3->CR1 = TIM_CR1_ARPE; // ARPE bufferd , upcounter
-//	TIM3->DIER = TIM_DIER_UIE; //
-//
-//}
-
-//static void Timer3Init(void) {
-//	xTimer3Semphr = xSemaphoreCreateBinary();
-//	configASSERT(xTimer3Semphr);
-//	Timer3Configuration();
-//}
-
-
-//
-//static void KeyboardInit(void) {
-//
-//	xKeyboardQueueSet = xQueueCreateSet(
-//			sizeof(InputsPressed) + BINARY_SEMAPHORE_LENGTH);
-//	configASSERT(xKeyboardQueueSet);
-//	xKeyboardReceivedQueue = xQueueCreate(1,sizeof(InputsPressed));
-//	configASSERT(xKeyboardReceivedQueue);
-//	xReceivedCorrectDataCodeFromKeyboard = xQueueCreate(1,sizeof(codeToSend));
-//	configASSERT( xReceivedCorrectDataCodeFromKeyboard);
-//	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
-//	RCC_APB2PeriphClockCmd(RCC_APB2ENR_SYSCFGEN, ENABLE); // Enable SYSCFG clock
-//	keyboardLedsConfig();
-//	setABCDToInputStateDefaultState();
-//	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA,
-//			EXTI_PinSource0 | EXTI_PinSource1 | EXTI_PinSource2
-//					| EXTI_PinSource3);
-//	EXTI->IMR |= EXTI_IMR_MR0 | EXTI_IMR_MR1 | EXTI_IMR_MR2 | EXTI_IMR_MR3; //Interrupt request from these pins is not masked
-//	EXTI->RTSR |= EXTI_RTSR_TR0 | EXTI_RTSR_TR1 | EXTI_RTSR_TR2 | EXTI_RTSR_TR3; // Rising trigger edge
-//	Timer3Init();
-//	xQueueAddToSet(xKeyboardReceivedQueue, xKeyboardQueueSet);
-//	xQueueAddToSet(xTimer3Semphr, xKeyboardQueueSet);
-//
-//	enableInterruptsForInputButtons();
-//
-//}
-//
-
-//
-//void TIM3_IRQHandler(void) {
-//	if (TIM3->SR & TIM_SR_UIF) {
-//		TIM3->SR &= ~(TIM_SR_UIF);
-//		tickCounterForPressingButtonEvent++;
-//		if (tickCounterForPressingButtonEvent == TIME_TO_NEXT_BUTTON_PRESS) {
-//			//DEBUG("=");
-//			//DEBUG
-//			enableInterruptsForInputButtons();
-//		} else if (tickCounterForPressingButtonEvent
-//				== TIME_TO_CANCEL_BUTTON_PRESS_SEQUENCE) {
-//			xSemaphoreGiveFromISR(xTimer3Semphr, pdFALSE);
-//			disableTimer3();
-//		}
-//	}
-//}
-
-
 //------------------------------------------------------------------------------
 void keypad3x5_init(void)
 {
 	set_pins_default_mode();
+	// Enable timer 3 interrupts
+	//HAL_TIM_Base_Start_IT(&htim3);
 }
 
 
