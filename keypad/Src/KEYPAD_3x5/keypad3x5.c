@@ -4,7 +4,7 @@
 
 //------------------------------------------------------------------------------
 #define KEYPAD_TIMER_ONE_COUNT_PERIOD 	10  // ms
-#define TIME_TO_NEXT_BUTTON_PRESS     	100 // ms
+#define TIME_TO_NEXT_BUTTON_PRESS     	500 // ms
 #define TIME_TO_NEXT_BUTTON_PRESS_VAL	(TIME_TO_NEXT_BUTTON_PRESS/KEYPAD_TIMER_ONE_COUNT_PERIOD)
 
 // Types
@@ -130,7 +130,6 @@ static void set_pins_to_read_mode(void)
 }
 
 
-
 /**
  * @brief Sets ABCD pins as External input source (EXTI), and EFGH as OUTPUTS.
  */
@@ -224,7 +223,6 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
 	if (current_inputs_pressed.abcd_input != BUTTON_UNKNOWN_ERROR)
 	{
-		//greenLedOn();
 		// Set HIGH state on a given pin of ABCD row
 		HAL_GPIO_WritePin(GPIOA, GPIO_Pin, GPIO_PIN_SET);
 		current_inputs_pressed.efgh_input = read_input_state_from_EFGH();
@@ -249,32 +247,14 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
  */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-	//printf("HAL_TIM_PeriodElapsedCallback: %d,\r\n", HAL_GetTick());
 	keypad_timer_counter++;
 	if (keypad_timer_counter == TIME_TO_NEXT_BUTTON_PRESS_VAL)
 	{
+		printf("HAL_TIM_PeriodElapsedCallback: %d,\r\n", HAL_GetTick());
 		// Reset pins to default state, enable pin button interrupt
 		set_pins_default_mode();
 	}
 }
-
-//inline static void keyboardLedsConfig(void) {
-//	GPIOA->MODER |= (GPIO_MODER_MODER10_0 | GPIO_MODER_MODER11_0); //RED PA10, GREEN PA11  OUTPUTs
-//	GPIOA->PUPDR |= (GPIO_PUPDR_PUPDR10_0 | GPIO_PUPDR_PUPDR11_0); //PULL UP
-//}
-//
-//inline static void redLedOn(void) {
-//	GPIOA->BSRR = GPIO_BSRR_BS_10;
-//}
-//inline static void redLedOff(void) {
-//	GPIOA->BSRR = GPIO_BSRR_BR_10;
-//}
-//inline static void greenLedOn(void) {
-//	GPIOA->BSRR = GPIO_BSRR_BS_11;
-//}
-//inline static void greenLedOff(void) {
-//	GPIOA->BSRR = GPIO_BSRR_BR_11;
-//}
 
 //------------------------------------------------------------------------------
 void keypad3x5_init(void)
@@ -284,4 +264,30 @@ void keypad3x5_init(void)
 	//HAL_TIM_Base_Start_IT(&htim3);
 }
 
+//------------------------------------------------------------------------------
+void keypad_set_red_led(bool enable)
+{
+	if (enable)
+	{
+		HAL_GPIO_WritePin(LED_RED_GPIO_Port, LED_RED_Pin, GPIO_PIN_SET);
+	}
+	else
+	{
+		HAL_GPIO_WritePin(LED_RED_GPIO_Port, LED_RED_Pin, GPIO_PIN_RESET);
+	}
+}
 
+//------------------------------------------------------------------------------
+void keypad_set_green_led(bool enable)
+{
+	if (enable)
+	{
+		HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_SET);
+	}
+	else
+	{
+		HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_RESET);
+	}
+}
+
+//------------------------------------------------------------------------------
