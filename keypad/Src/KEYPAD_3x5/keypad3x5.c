@@ -224,7 +224,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	if (!keypad_button_pressed)
 	{
 		keypad_last_inputs_state.abcd_input = read_input_state_from_ABCD();
-		printf("keypad_last_inputs_state.abcd_input == %d,\r\n", keypad_last_inputs_state.abcd_input);
+		//printf("keypad_last_inputs_state.abcd_input == %d,\r\n", keypad_last_inputs_state.abcd_input);
 		keypad_button_pressed = true;
 		// Reset timer for next pin readout
 		reset_keypad_timer();
@@ -241,13 +241,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	{
 		KeypadInputsPressed current_inputs_pressed = { BUTTON_UNKNOWN_ERROR, BUTTON_UNKNOWN_ERROR };
 		current_inputs_pressed.abcd_input = read_input_state_from_ABCD();
-		printf("current_inputs_pressed.abcd_input == %d,\r\n", current_inputs_pressed.abcd_input);
+		//printf("current_inputs_pressed.abcd_input == %d,\r\n", current_inputs_pressed.abcd_input);
 		if (current_inputs_pressed.abcd_input != BUTTON_UNKNOWN_ERROR && current_inputs_pressed.abcd_input == keypad_last_inputs_state.abcd_input)
 		{
 			// Set EFGH pins as inputs
 			set_efgh_pins_to_read_mode(current_inputs_pressed.abcd_input);
 			current_inputs_pressed.efgh_input = read_input_state_from_EFGH();
-			printf("current_inputs_pressed.efgh_input == %d,\r\n", current_inputs_pressed.efgh_input);
+			//printf("current_inputs_pressed.efgh_input == %d,\r\n", current_inputs_pressed.efgh_input);
 
 			if (current_inputs_pressed.efgh_input != BUTTON_UNKNOWN_ERROR)
 			{
