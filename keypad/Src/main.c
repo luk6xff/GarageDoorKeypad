@@ -99,7 +99,6 @@ int main(void)
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
-  
 
   /* MCU Configuration--------------------------------------------------------*/
 
@@ -162,13 +161,13 @@ int main(void)
 //  nrf24l01_print_all_regs();
   while (1)
   {
-
-	  HAL_Delay(1000);
-	  HAL_GPIO_TogglePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin);
-	  HAL_UART_Transmit(&huart1, green_led, sizeof(green_led), 100);
-	  HAL_Delay(1000);
-	  HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
-	  HAL_UART_Transmit(&huart1, red_led, sizeof(red_led), 100);
+	  keypad_get_last_state_if_changed();
+//	  HAL_Delay(1000);
+//	  HAL_GPIO_TogglePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin);
+//	  HAL_UART_Transmit(&huart1, green_led, sizeof(green_led), 100);
+//	  HAL_Delay(1000);
+//	  HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
+//	  HAL_UART_Transmit(&huart1, red_led, sizeof(red_led), 100);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -517,7 +516,7 @@ void Error_Handler(void)
   * @param  line: assert_param error line source number
   * @retval None
   */
-void assert_failed(char *file, uint32_t line)
+void assert_failed(uint8_t *file, uint32_t line)
 { 
   /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line number,

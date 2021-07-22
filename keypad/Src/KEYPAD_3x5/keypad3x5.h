@@ -56,6 +56,11 @@ void keypad_set_red_led(bool enable);
  */
 void keypad_set_green_led(bool enable);
 
+/**
+ * @brief Print last keypad state if changed
+ */
+void keypad_get_last_state_if_changed();
+
 
 #ifdef __cplusplus
 }

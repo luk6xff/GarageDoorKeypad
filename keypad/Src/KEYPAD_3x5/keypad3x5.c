@@ -4,7 +4,7 @@
 
 //------------------------------------------------------------------------------
 #define KEYPAD_TIMER_ONE_COUNT_PERIOD 	10  // ms
-#define TIME_TO_NEXT_BUTTON_PRESS     	500 // ms
+#define TIME_TO_NEXT_BUTTON_PRESS     	50 // ms
 #define TIME_TO_NEXT_BUTTON_PRESS_VAL	(TIME_TO_NEXT_BUTTON_PRESS/KEYPAD_TIMER_ONE_COUNT_PERIOD)
 
 // Types
@@ -25,6 +25,9 @@ typedef enum
 // Private variables
 //------------------------------------------------------------------------------
 static volatile uint32_t keypad_timer_counter = 0;
+static volatile bool keypad_button_pressed = false;
+static volatile bool keypad_button_read = false;
+static volatile KeypadInputsPressed keypad_last_inputs_state;
 
 // Private functions
 //------------------------------------------------------------------------------
@@ -84,27 +87,16 @@ static char* decode_keyboard_button(KeypadButtonPressed button)
 
 // Keypad timer
 //------------------------------------------------------------------------------
-static void enable_keypad_timer(void)
+static void reset_keypad_timer(void)
 {
-	TIM_HandleTypeDef htim3;
-	htim3.Instance = TIM3;
-	HAL_TIM_Base_Start_IT(&htim3);
 	keypad_timer_counter = 0;
 }
 
 //------------------------------------------------------------------------------
-static void disable_keypad_timer(void)
-{
-	TIM_HandleTypeDef htim3;
-	htim3.Instance = TIM3;
-	HAL_TIM_Base_Stop_IT(&htim3);
-}
-
-//------------------------------------------------------------------------------
 /**
- * @brief Sets ABCD pins as pulled-up output, and EFGH to input state.
+ * @brief Sets A,B,C or D pins as pulled-up output, and EFGH to input state.
  */
-static void set_pins_to_read_mode(void)
+static void set_efgh_pins_to_read_mode(KeypadButtonInputs active_abcd_pin)
 {
 	GPIO_InitTypeDef GPIO_InitStruct = {0};
 
@@ -116,11 +108,13 @@ static void set_pins_to_read_mode(void)
 	HAL_GPIO_WritePin(GPIOA, KEY_E_Pin|KEY_F_Pin|KEY_G_Pin|KEY_H_Pin, GPIO_PIN_RESET);
 
 	/* Configure GPIO pins : KEY_A_Pin KEY_B_Pin KEY_C_Pin KEY_D_Pin as OUTPUTS*/
-	GPIO_InitStruct.Pin = KEY_A_Pin|KEY_B_Pin|KEY_C_Pin|KEY_D_Pin;
+	GPIO_InitStruct.Pin = active_abcd_pin;
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStruct.Pull = GPIO_PULLUP;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
 	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+	/* Configure GPIO A,B,C or D active pin Output Level to HIGH state */
+	HAL_GPIO_WritePin(GPIOA, active_abcd_pin, GPIO_PIN_SET);
 
 	/* Configure GPIO pins : KEY_E_Pin KEY_F_Pin KEY_G_Pin KEY_H_Pin as INPUTS*/
 	GPIO_InitStruct.Pin = KEY_E_Pin|KEY_F_Pin|KEY_G_Pin|KEY_H_Pin;
@@ -137,16 +131,17 @@ static void set_pins_default_mode(void)
 {
 	GPIO_InitTypeDef GPIO_InitStruct = {0};
 
-	/* Configure GPIO EFGH pin Output Level to HIGH state */
-	HAL_GPIO_WritePin(GPIOA, KEY_E_Pin|KEY_F_Pin|KEY_G_Pin|KEY_H_Pin, GPIO_PIN_SET);
-
 	/* Configure GPIO pins : KEY_E_Pin KEY_F_Pin KEY_G_Pin KEY_H_Pin as OUTPUTS*/
 	GPIO_InitStruct.Pin = KEY_E_Pin|KEY_F_Pin|KEY_G_Pin|KEY_H_Pin;
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStruct.Pull = GPIO_PULLUP;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
 	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+	/* Configure GPIO EFGH pin Output Level to HIGH state */
+	HAL_GPIO_WritePin(GPIOA, KEY_E_Pin|KEY_F_Pin|KEY_G_Pin|KEY_H_Pin, GPIO_PIN_SET);
 
+	/* Configure GPIO ABCD pin input Level to LOW (reset) state */
+	HAL_GPIO_WritePin(GPIOA, KEY_A_Pin|KEY_B_Pin|KEY_C_Pin|KEY_D_Pin, GPIO_PIN_RESET);
 	/* Configure GPIO pins : KEY_A_Pin KEY_B_Pin KEY_C_Pin KEY_D_Pin as EXTI INPUTS*/
 	GPIO_InitStruct.Pin = KEY_A_Pin|KEY_B_Pin|KEY_C_Pin|KEY_D_Pin;
 	GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
@@ -161,6 +156,34 @@ static void set_pins_default_mode(void)
 	HAL_NVIC_EnableIRQ(EXTI2_3_IRQn);
 }
 
+
+/**
+ * @brief Reads ABCD input state after button pressed
+ */
+static KeypadButtonInputs read_input_state_from_ABCD(void)
+{
+
+	if (HAL_GPIO_ReadPin(KEY_A_GPIO_Port, KEY_A_Pin) == GPIO_PIN_SET)
+	{
+		return BUTTON_INPUT_A;
+	}
+	else if (HAL_GPIO_ReadPin(KEY_B_GPIO_Port, KEY_B_Pin) == GPIO_PIN_SET)
+	{
+		return BUTTON_INPUT_B;
+	}
+	else if (HAL_GPIO_ReadPin(KEY_C_GPIO_Port, KEY_C_Pin) == GPIO_PIN_SET)
+	{
+		return BUTTON_INPUT_C;
+	}
+	else if (HAL_GPIO_ReadPin(KEY_D_GPIO_Port, KEY_D_Pin) == GPIO_PIN_SET)
+	{
+		return BUTTON_INPUT_D;
+	}
+	else
+	{
+		return BUTTON_UNKNOWN_ERROR;
+	}
+}
 
 /**
  * @brief Reads EFGH input state after button pressed
@@ -196,49 +219,16 @@ static KeypadButtonInputs read_input_state_from_EFGH(void)
  */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-	disable_keypad_timer();
-
 	KeypadInputsPressed current_inputs_pressed = { BUTTON_UNKNOWN_ERROR, BUTTON_UNKNOWN_ERROR };
-	set_pins_to_read_mode();
-	if (GPIO_Pin == KEY_A_Pin)
-	{
-		current_inputs_pressed.abcd_input = BUTTON_INPUT_A;
-	}
-	else if (GPIO_Pin == KEY_B_Pin)
-	{
-		current_inputs_pressed.abcd_input = BUTTON_INPUT_B;
-	}
-	else if (GPIO_Pin == KEY_C_Pin)
-	{
-		current_inputs_pressed.abcd_input = BUTTON_INPUT_C;
-	}
-	else if (GPIO_Pin == KEY_D_Pin)
-	{
-		current_inputs_pressed.abcd_input = BUTTON_INPUT_D;
-	}
-	else
-	{
-		current_inputs_pressed.abcd_input = BUTTON_UNKNOWN_ERROR;
-	}
 
-	if (current_inputs_pressed.abcd_input != BUTTON_UNKNOWN_ERROR)
+	if (!keypad_button_pressed)
 	{
-		// Set HIGH state on a given pin of ABCD row
-		HAL_GPIO_WritePin(GPIOA, GPIO_Pin, GPIO_PIN_SET);
-		current_inputs_pressed.efgh_input = read_input_state_from_EFGH();
-		// Set LOW state on a given pin of ABCD row
-		HAL_GPIO_WritePin(GPIOA, GPIO_Pin, GPIO_PIN_RESET);
-		if (current_inputs_pressed.efgh_input != BUTTON_UNKNOWN_ERROR)
-		{
-			printf("ABCD_INPUT:0x%x, EFGH_INPUT:0x%x, SUM:%d,0x%x, %s\r\n",
-				   current_inputs_pressed.abcd_input, current_inputs_pressed.efgh_input,
-				   (KeypadButtonPressed)(current_inputs_pressed.abcd_input|current_inputs_pressed.efgh_input),
-				   (KeypadButtonPressed)(current_inputs_pressed.abcd_input|current_inputs_pressed.efgh_input),
-				   decode_keyboard_button(current_inputs_pressed.abcd_input|current_inputs_pressed.efgh_input));
-		}
+		keypad_last_inputs_state.abcd_input = read_input_state_from_ABCD();
+		printf("keypad_last_inputs_state.abcd_input == %d,\r\n", keypad_last_inputs_state.abcd_input);
+		keypad_button_pressed = true;
+		// Reset timer for next pin readout
+		reset_keypad_timer();
 	}
-	// Enable timer for next pin readout
-	enable_keypad_timer();
 }
 
 //------------------------------------------------------------------------------
@@ -247,12 +237,26 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
  */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-	keypad_timer_counter++;
-	if (keypad_timer_counter == TIME_TO_NEXT_BUTTON_PRESS_VAL)
+	if (keypad_button_pressed && keypad_timer_counter++ == TIME_TO_NEXT_BUTTON_PRESS_VAL)
 	{
-		printf("HAL_TIM_PeriodElapsedCallback: %d,\r\n", HAL_GetTick());
-		// Reset pins to default state, enable pin button interrupt
+		KeypadInputsPressed current_inputs_pressed = { BUTTON_UNKNOWN_ERROR, BUTTON_UNKNOWN_ERROR };
+		current_inputs_pressed.abcd_input = read_input_state_from_ABCD();
+		printf("current_inputs_pressed.abcd_input == %d,\r\n", current_inputs_pressed.abcd_input);
+		if (current_inputs_pressed.abcd_input != BUTTON_UNKNOWN_ERROR && current_inputs_pressed.abcd_input == keypad_last_inputs_state.abcd_input)
+		{
+			// Set EFGH pins as inputs
+			set_efgh_pins_to_read_mode(current_inputs_pressed.abcd_input);
+			current_inputs_pressed.efgh_input = read_input_state_from_EFGH();
+			printf("current_inputs_pressed.efgh_input == %d,\r\n", current_inputs_pressed.efgh_input);
+
+			if (current_inputs_pressed.efgh_input != BUTTON_UNKNOWN_ERROR)
+			{
+				memcpy(&keypad_last_inputs_state, &current_inputs_pressed, sizeof(keypad_last_inputs_state));
+				keypad_button_read = true;
+			}
+		}
 		set_pins_default_mode();
+		keypad_button_pressed = false;
 	}
 }
 
@@ -260,8 +264,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 void keypad3x5_init(void)
 {
 	set_pins_default_mode();
-	// Enable timer 3 interrupts
-	//HAL_TIM_Base_Start_IT(&htim3);
 }
 
 //------------------------------------------------------------------------------
@@ -287,6 +289,21 @@ void keypad_set_green_led(bool enable)
 	else
 	{
 		HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_RESET);
+	}
+}
+
+//------------------------------------------------------------------------------
+void keypad_get_last_state_if_changed()
+{
+	if (keypad_button_read)
+	{
+		printf("ABCD_INPUT:0x%x, EFGH_INPUT:0x%x, SUM:%d,0x%x, %s\r\n",
+				keypad_last_inputs_state.abcd_input, keypad_last_inputs_state.efgh_input,
+				(KeypadButtonPressed)(keypad_last_inputs_state.abcd_input|keypad_last_inputs_state.efgh_input),
+				(KeypadButtonPressed)(keypad_last_inputs_state.abcd_input|keypad_last_inputs_state.efgh_input),
+				decode_keyboard_button(keypad_last_inputs_state.abcd_input|keypad_last_inputs_state.efgh_input));
+
+		keypad_button_read = false;
 	}
 }
 
