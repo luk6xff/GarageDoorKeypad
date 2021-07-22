@@ -29,6 +29,16 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>libs</name>
+			<type>2</type>
+			<location>/home/luk6xff/Projects/GarageDoorKeypad/libs</location>
+		</link>
+		<link>
+			<name>platform</name>
+			<type>2</type>
+			<location>/home/luk6xff/Projects/GarageDoorKeypad/libs/AT24CXX/platform</location>
+		</link>
+		<link>
 			<name>Drivers/STM32F0xx_HAL_Driver/stm32f0xx_hal.c</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-3-PROJECT_LOC%7D/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.2/Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal.c</locationURI>

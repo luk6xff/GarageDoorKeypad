@@ -23,8 +23,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-//#include "at24cxx-cube.h"
-//#include "nrf24l01-cube.h"
+#include "NRF24L01+/platform/stm32cube/nrf24l01-cube.h"
+#include "AT24CXX/platform/stm32cube/at24cxx-cube.h"
 #include "KEYPAD_3x5/keypad3x5.h"
 /* USER CODE END Includes */
 
@@ -123,49 +123,54 @@ int main(void)
   MX_SPI2_Init();
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
-  printf("> Hello from Garage Door Keypad < --- luk6xff-2020\r\n");
+  printf("> Hello from Garage Door Keypad < --- luk6xff-2021\r\n");
   // Drivers initialization
   // KEYPAD 3x5
   /* GPIO Ports Clock Enable */
   keypad3x5_init();
   // AT24C64 EEPROM
-//  at24cxx_cube at24c64_cube =
-//  {
-//		  .i2c = &hi2c2,
-//		  .gpio_wp_port = AT24Cx_WP_GPIO_Port,
-//		  .gpio_wp_pin = AT24Cx_WP_Pin,
-//  };
-//
-//  at24cxx at24c64 =
-//  {
-//      .type = AT24C64,
-//      .addr = AT24C64_I2C_ADDR,
-//  };
-//  at24cxx_cube_init(&at24c64, &at24c64_cube);
-//
-//  // NRF24LO1
-//  nrf24l01_cube_init(&hspi2, &huart1, NRF24L01_CE_GPIO_Port, NRF24L01_CE_Pin, NRF24L01_CSN_GPIO_Port, NRF24L01_CSN_Pin);
-//  nrf24l01_enable();
-//  if (nrf24l01_is_connected())
-//  {
-//	  HAL_UART_Transmit(&huart1, nrf24l01_connected, sizeof(nrf24l01_connected), 100);
-//  }
-//  else
-//  {
-//	  HAL_UART_Transmit(&huart1, nrf24l01_not_connected, sizeof(nrf24l01_not_connected), 100);
-//  }
+  at24cxx_cube at24c64_cube =
+  {
+		  .i2c = &hi2c2,
+		  .gpio_wp_port = AT24Cx_WP_GPIO_Port,
+		  .gpio_wp_pin = AT24Cx_WP_Pin,
+  };
+
+  at24cxx at24c64 =
+  {
+      .type = AT24C64,
+      .addr = AT24C64_I2C_ADDR,
+  };
+  at24cxx_cube_init(&at24c64, &at24c64_cube);
+
+  // NRF24LO1
+  nrf24l01_cube_init(&hspi2, &huart1, NRF24L01_CE_GPIO_Port, NRF24L01_CE_Pin, NRF24L01_CSN_GPIO_Port, NRF24L01_CSN_Pin);
+  nrf24l01_enable();
+  if (nrf24l01_is_connected())
+  {
+	  HAL_UART_Transmit(&huart1, nrf24l01_connected, sizeof(nrf24l01_connected), 100);
+  }
+  else
+  {
+	  HAL_UART_Transmit(&huart1, nrf24l01_not_connected, sizeof(nrf24l01_not_connected), 100);
+  }
+  nrf24l01_power_down();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-//  nrf24l01_print_all_regs();
+  nrf24l01_print_all_regs();
   while (1)
   {
-	  keypad_get_last_state_if_changed();
-//	  HAL_Delay(1000);
-//	  HAL_GPIO_TogglePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin);
-//	  HAL_UART_Transmit(&huart1, green_led, sizeof(green_led), 100);
-//	  HAL_Delay(1000);
+		const KeypadButtonPressed button_pressed = keypad_get_last_state_if_changed();
+		if (button_pressed != BUTTON_NONE)
+		{
+			HAL_GPIO_TogglePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin);
+			HAL_Delay(100);
+			HAL_GPIO_TogglePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin);
+			HAL_UART_Transmit(&huart1, green_led, sizeof(green_led), 100);
+		}
+
 //	  HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
 //	  HAL_UART_Transmit(&huart1, red_led, sizeof(red_led), 100);
     /* USER CODE END WHILE */

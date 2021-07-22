@@ -293,18 +293,19 @@ void keypad_set_green_led(bool enable)
 }
 
 //------------------------------------------------------------------------------
-void keypad_get_last_state_if_changed()
+KeypadButtonPressed keypad_get_last_state_if_changed()
 {
+	KeypadButtonPressed button_pressed = BUTTON_NONE;
 	if (keypad_button_read)
 	{
+		button_pressed = (KeypadButtonPressed)(keypad_last_inputs_state.abcd_input|keypad_last_inputs_state.efgh_input);
 		printf("ABCD_INPUT:0x%x, EFGH_INPUT:0x%x, SUM:%d,0x%x, %s\r\n",
 				keypad_last_inputs_state.abcd_input, keypad_last_inputs_state.efgh_input,
-				(KeypadButtonPressed)(keypad_last_inputs_state.abcd_input|keypad_last_inputs_state.efgh_input),
-				(KeypadButtonPressed)(keypad_last_inputs_state.abcd_input|keypad_last_inputs_state.efgh_input),
-				decode_keyboard_button(keypad_last_inputs_state.abcd_input|keypad_last_inputs_state.efgh_input));
+				button_pressed, button_pressed, decode_keyboard_button(button_pressed));
 
 		keypad_button_read = false;
 	}
+	return button_pressed;
 }
 
 //------------------------------------------------------------------------------
