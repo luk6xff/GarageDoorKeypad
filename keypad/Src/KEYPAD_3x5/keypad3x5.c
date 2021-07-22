@@ -125,7 +125,38 @@ static void set_efgh_pins_to_read_mode(KeypadButtonInputs active_abcd_pin)
 
 
 /**
- * @brief Sets ABCD pins as External input source (EXTI), and EFGH as OUTPUTS.
+ * @brief Sets ABCD pins as External input source - (EXTI) FALLING EDGE, and EFGH as OUTPUTS.
+ */
+static void set_pins_release_mode(KeypadButtonInputs active_abcd_pin)
+{
+	GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+	/* Configure GPIO pins : KEY_E_Pin KEY_F_Pin KEY_G_Pin KEY_H_Pin as OUTPUTS*/
+	GPIO_InitStruct.Pin = KEY_E_Pin|KEY_F_Pin|KEY_G_Pin|KEY_H_Pin;
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Pull = GPIO_PULLUP;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+	/* Configure GPIO EFGH pin Output Level to HIGH state */
+	HAL_GPIO_WritePin(GPIOA, KEY_E_Pin|KEY_F_Pin|KEY_G_Pin|KEY_H_Pin, GPIO_PIN_SET);
+
+	/* Configure GPIO pins : active_abcd_pin as EXTI INPUTS*/
+	GPIO_InitStruct.Pin = active_abcd_pin;
+	GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+	GPIO_InitStruct.Pull = GPIO_PULLUP;
+	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+	/* EXTI interrupt init*/
+	HAL_NVIC_SetPriority(EXTI0_1_IRQn, 1, 0);
+	HAL_NVIC_EnableIRQ(EXTI0_1_IRQn);
+
+	HAL_NVIC_SetPriority(EXTI2_3_IRQn, 1, 0);
+	HAL_NVIC_EnableIRQ(EXTI2_3_IRQn);
+}
+
+
+/**
+ * @brief Sets ABCD pins as External input source (EXTI) RISING EDGE, and EFGH as OUTPUTS.
  */
 static void set_pins_default_mode(void)
 {
@@ -229,6 +260,11 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 		// Reset timer for next pin readout
 		reset_keypad_timer();
 	}
+	else // if (keypad_button_pressed)
+	{
+		set_pins_default_mode();
+		keypad_button_pressed = false;
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -255,8 +291,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				keypad_button_read = true;
 			}
 		}
-		set_pins_default_mode();
-		keypad_button_pressed = false;
+		// Swithc active_abcd input into FALLING_EDGE EXTI
+		set_pins_release_mode(current_inputs_pressed.abcd_input);
 	}
 }
 

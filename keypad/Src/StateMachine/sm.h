@@ -10,6 +10,7 @@
 
 #include "../KEYPAD_3x5/keypad3x5.h"
 
+static const uint32_t k_max_time_between_consecutive_btns_ms = 3000;
 
 typedef enum
 {

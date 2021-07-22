@@ -7,12 +7,12 @@
 
 #include "state_processing.h"
 #include "../Storage/eeprom.h"
+#include "../Radio/radio.h"
 #include "main.h"
 #include <stdio.h>
 
 
 //------------------------------------------------------------------------------
-const uint32_t k_max_time_between_consecutive_frames_ms = 3000;
 
 // Last button pressed timestamp
 static uint32_t last_button_pressed_timestamp = 0;
@@ -50,7 +50,7 @@ void state_processing(SmCtx *sm)
 	if (sm->last_pressed_btn != BUTTON_NONE)
 	{
 		const uint32_t timestamp_ms = HAL_GetTick();
-		if (last_button_pressed_timestamp > 0 && (timestamp_ms - last_button_pressed_timestamp) > k_max_time_between_consecutive_frames_ms)
+		if (last_button_pressed_timestamp > 0 && (timestamp_ms - last_button_pressed_timestamp) > k_max_time_between_consecutive_btns_ms)
 		{
 			printf("RADIO code timeout expired-> timestamp_ms:%d, last_button_pressed_timestamp:%d\r\n", timestamp_ms, last_button_pressed_timestamp);
 			// Clear last provided radio code
@@ -58,18 +58,18 @@ void state_processing(SmCtx *sm)
 		}
 		else
 		{
-			printf("RADIO code button pressed:%d\r\n", sm->last_pressed_btn);
-			printf("RADIO code current_radio_code_idx=%d\r\n", current_radio_code_idx);
+//			printf("RADIO code button pressed:%d\r\n", sm->last_pressed_btn);
+//			printf("RADIO code current_radio_code_idx=%d\r\n", current_radio_code_idx);
 			current_radio_code[current_radio_code_idx++] = sm->last_pressed_btn;
 			last_button_pressed_timestamp = timestamp_ms;
 			verify_radio_code();
 		}
 	}
 
-//	if (sm->last_pressed_btn == BUTTON_P)
-//	{
-//		// Clear last provided radio code
-//		clear_radio_code();
-//		sm->current_state = Programming;
-//	}
+	if (sm->last_pressed_btn == BUTTON_P)
+	{
+		// Clear last provided radio code
+		clear_radio_code();
+		sm->current_state = Programming;
+	}
 }

@@ -140,7 +140,7 @@ bool eeprom_data_read()
 //------------------------------------------------------------------------------
 void eeprom_data_print_current()
 {
-	printf("eeprom_data: <<CURRENT APP SETTINGS>>\r\n");
+	printf("eeprom_data: <<CURRENT EEPROM DATA>>\r\n");
 	printf(".magic:0x%x\r\n", eeprom_data_get_current()->magic);
 	printf(".version:0x%x\r\n", eeprom_data_get_current()->version);
 	printf(".dev_id:0x%x\r\n", eeprom_data_get_current()->dev_id);
