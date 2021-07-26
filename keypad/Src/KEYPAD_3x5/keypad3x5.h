@@ -48,16 +48,6 @@ typedef enum
 void keypad3x5_init(void);
 
 /**
- * @brief Enable Keypad red led
- */
-void keypad_set_red_led(bool enable);
-
-/**
- * @brief Enable Keypad green led
- */
-void keypad_set_green_led(bool enable);
-
-/**
  * @brief Return and Print last keypad state if changed
  */
 KeypadButtonPressed keypad_get_last_state_if_changed();

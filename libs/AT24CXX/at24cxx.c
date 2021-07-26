@@ -1,23 +1,5 @@
  #include "at24cxx.h"
 
-
-//------------------------------------------------------------------------------
-static const at24cxx_mem at24cxx_devices[] =
-{
-    { AT24C01,   128,    8,   1 },  //128 bytes=1Kbit, 8bytes=64bit
-    { AT24C02,   256,    8,   1 },
-    { AT24C04,   512,    16,  1 },
-    { AT24C08,   1024,   16,  1 },
-    { AT24C16,   2048,   16,  1 },
-    { AT24C32,   4096,   32,  2 },
-    { AT24C64,   8192,   32,  2 },
-    { AT24C128,  16384,  64,  2 },
-    { AT24C256,  32768,  64,  2 },
-    { AT24C512,  65536,  128, 2 },
-    { AT24C1024, 131072, 128, 2 },
-};
-
-
 //------------------------------------------------------------------------------
 at24cxx_status at24cxx_init(at24cxx* const dev)
 {
@@ -140,6 +122,7 @@ at24cxx_status at24cxx_write(const at24cxx* const dev, uint32_t addr,
         // Send right side of the data
         ret = at24cxx_write_buffer(dev, (addr+data_size-bytes_to_be_send_right), &data[data_size-bytes_to_be_send_right], bytes_to_be_send_right);
         at24cxx_wait_for_ready(dev);
+        printf("AT24CXX sending:data_size:%d, %d bytes to address: 0x%x\r\n",data_size, bytes_to_be_send_right, (addr+data_size-bytes_to_be_send_right));
         if (ret != AT24CXX_NOERR)
         {
             return ret;
@@ -152,6 +135,8 @@ at24cxx_status at24cxx_write(const at24cxx* const dev, uint32_t addr,
     {
         const size_t offset = bytes_to_be_send_left + (page_num*page_size);
         ret = at24cxx_write_buffer(dev, addr + offset, &data[offset], page_size);
+        printf("AT24CXX sending full pages:data_size:%d, %d bytes to offset: 0x%x\r\n",data_size, page_size, addr + offset);
+
         at24cxx_wait_for_ready(dev);
         if (ret != AT24CXX_NOERR)
         {
@@ -176,6 +161,10 @@ at24cxx_status at24cxx_read(const at24cxx* const dev, uint32_t addr,
 
     ret = at24cxx_read_buffer(dev, addr, data, data_size);
     at24cxx_wait_for_ready(dev);
+    for (int i = 0; i < data_size; ++i)
+    {
+    	printf("AT24CXX DATA[%d]= 0x%x\r\n", i, data[i]);
+    }
     if (ret != AT24CXX_NOERR)
     {
         return ret;

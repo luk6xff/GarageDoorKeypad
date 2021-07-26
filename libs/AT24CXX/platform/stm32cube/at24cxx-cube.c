@@ -17,7 +17,7 @@ void at24cxx_cube_deinit(at24cxx* const dev)
 //------------------------------------------------------------------------------
 at24cxx_status at24cxx_io_init(at24cxx* const dev)
 {
-	// Empty
+    at24cxx_enable_wp(dev, false); // Disable Write protection
     return AT24CXX_NOERR;
 }
 
@@ -39,7 +39,7 @@ at24cxx_status at24cxx_write_buffer(const at24cxx* const dev, uint32_t addr,
     }
 
     const at24cxx_cube* const pd = (at24cxx_cube*)dev->platform_dev;
-
+	printf("AT24CXX  WRITE = 0x%x\r\n", dev->addr);
     uint8_t tmp[2+buf_size];
     tmp[0] = addr >> 8;
     tmp[1] = addr;
@@ -59,10 +59,17 @@ at24cxx_status at24cxx_read_buffer(const at24cxx* const dev, uint32_t addr,
 {
     const at24cxx_cube* const pd = (at24cxx_cube*)dev->platform_dev;
 
-    const uint8_t addr_len = 2; //at24cxx_devices[dev->type].word_addr_len; // TODO!!!
+    const uint8_t addr_len = at24cxx_devices[dev->type].word_addr_len;
     uint8_t address[addr_len];
-    address[0] = addr >> 8;
-    address[1] = addr;
+    if (addr_len == 1)
+    {
+        address[0] = addr;
+    }
+    else
+    {
+        address[0] = addr >> 8;
+        address[1] = addr;
+    }
 
     // Write addr
     int ack = HAL_I2C_Master_Transmit(pd->i2c, dev->addr, (char*)address, addr_len, 1000);
@@ -72,10 +79,16 @@ at24cxx_status at24cxx_read_buffer(const at24cxx* const dev, uint32_t addr,
     }
 
     // Sequential Read
-    int retVal = HAL_I2C_Master_Receive(pd->i2c, dev->addr, buf, buf_size, 1000);
+    uint8_t buff[buf_size];
+    int retVal = HAL_I2C_Master_Receive(pd->i2c, dev->addr, buff, buf_size, 1000);
     if (retVal != 0)
     {
         return AT24CXX_ERR;
+    }
+
+    for (int i = 0; i < buf_size; ++i)
+    {
+    	printf("AT24CXX  RBUF DATA[%d]= 0x%x\r\n", i, buff[i]);
     }
     return AT24CXX_NOERR;
 }

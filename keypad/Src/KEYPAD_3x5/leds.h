@@ -5,8 +5,8 @@
  *      Author: luk6xff
  */
 
-#ifndef STATEMACHINE_LEDS_H_
-#define STATEMACHINE_LEDS_H_
+#ifndef KEYPAD_3X5_LEDS_H_
+#define KEYPAD_3X5_LEDS_H_
 
 #include <stdint.h>
 
@@ -22,4 +22,4 @@ void led_disable(Leds led);
 
 void led_toogle(Leds led, uint32_t toogle_time_ms);
 
-#endif /* STATEMACHINE_LEDS_H_ */
+#endif /* KEYPAD_3X5_LEDS_H_ */

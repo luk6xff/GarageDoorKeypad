@@ -15,13 +15,6 @@ typedef struct
 	uint8_t efgh_input;
 } KeypadInputsPressed;
 
-// Leds
-typedef enum
-{
-	GREEN_LED,
-	RED_LED
-} KeypadLeds;
-
 // Private variables
 //------------------------------------------------------------------------------
 static volatile uint32_t keypad_timer_counter = 0;
@@ -300,32 +293,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 void keypad3x5_init(void)
 {
 	set_pins_default_mode();
-}
-
-//------------------------------------------------------------------------------
-void keypad_set_red_led(bool enable)
-{
-	if (enable)
-	{
-		HAL_GPIO_WritePin(LED_RED_GPIO_Port, LED_RED_Pin, GPIO_PIN_SET);
-	}
-	else
-	{
-		HAL_GPIO_WritePin(LED_RED_GPIO_Port, LED_RED_Pin, GPIO_PIN_RESET);
-	}
-}
-
-//------------------------------------------------------------------------------
-void keypad_set_green_led(bool enable)
-{
-	if (enable)
-	{
-		HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_SET);
-	}
-	else
-	{
-		HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_RESET);
-	}
 }
 
 //------------------------------------------------------------------------------

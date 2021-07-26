@@ -49,15 +49,15 @@ static eeprom_data eeprom_data_current;
 // AT24C64 EEPROM
 static at24cxx_cube at24c64_cube =
 {
-		  .i2c = &hi2c2,
-		  .gpio_wp_port = AT24Cx_WP_GPIO_Port,
-		  .gpio_wp_pin = AT24Cx_WP_Pin,
+	.i2c = &hi2c2,
+	.gpio_wp_port = AT24Cx_WP_GPIO_Port,
+	.gpio_wp_pin = AT24Cx_WP_Pin,
 };
 
 static at24cxx at24c64 =
 {
-    .type = AT24C64,
-    .addr = AT24C64_I2C_ADDR,
+	.type = AT24C64,
+	.addr = AT24C64_I2C_ADDR,
 };
 
 
