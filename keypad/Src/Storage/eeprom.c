@@ -36,7 +36,7 @@ static uint32_t compute_checksum(const uint8_t *data, const uint8_t data_len);
 static const eeprom_data eeprom_data_default =
 {
 	.magic = 0x12345678,
-	.version = 0x00000002,
+	.version = 0x00000003,
 	.dev_id = 0x66BCDE77,
 	.num_of_radio_stored = 0,
 	.crc = 0x000000000
@@ -146,6 +146,50 @@ void eeprom_data_print_current()
 	printf(".num_of_radio_stored:%d\r\n", eeprom_data_get_current()->num_of_radio_stored);
 	printf(".crc:0x%x\r\n", eeprom_data_get_current()->crc);
 }
+
+//------------------------------------------------------------------------------
+bool eeprom_check_if_radio_code_exists(const uint8_t *new_code)
+{
+	if (!new_code)
+	{
+		return false;
+	}
+
+
+	return true;
+}
+
+
+//------------------------------------------------------------------------------
+bool eeprom_store_new_radio_code(const uint8_t *new_code,
+								const uint8_t new_code_len,
+								uint8_t new_code_id)
+{
+	bool ret = false;
+	if (!new_code || new_code_len != RADIO_CODE_SIZE)
+	{
+		return false;
+	}
+
+//	if (eeprom_data_get_current()->num_of_radio_stored >= NUM_OF_SUPPORTED_RADIOS)
+//	{
+//		printf("eeprom - cannot store new radio code: num_of_radio_stored >= NUM_OF_SUPPORTED_RADIOS");
+//		return false;
+//	}
+
+	for (size_t i = 0; i < NUM_OF_SUPPORTED_RADIOS; i++)
+	{
+		if (eeprom_data_get_current()->radio_configs[i].id == new_code_id)
+		{
+			printf("eeprom - There is already a radio_code id:%d registered. Overriting...", new_code_id);
+			memcpy(eeprom_data_get_current()->radio_configs[i].code, new_code, new_code_len);
+		}
+	}
+
+	return true;
+}
+
+
 
 //------------------------------------------------------------------------------
 // STATIC LOCAL FUNCTIONS DEFINITIONS

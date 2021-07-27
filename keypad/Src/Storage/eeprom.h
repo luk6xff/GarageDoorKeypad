@@ -11,7 +11,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define NUM_OF_SUPPORTED_RADIOS 8
+#define NUM_OF_SUPPORTED_RADIOS 10
 #define RADIO_CODE_SIZE 4
 
 
@@ -29,7 +29,6 @@ typedef struct __attribute__((packed, aligned(1)))
     uint32_t magic;
     uint32_t version;
     uint32_t dev_id;
-    uint32_t num_of_radio_stored;
     radio_config radio_configs[NUM_OF_SUPPORTED_RADIOS];
     uint32_t crc;
 } eeprom_data;
@@ -44,5 +43,8 @@ bool eeprom_data_read();
 
 void eeprom_data_print_current();
 
+// Radio code utils
+bool eeprom_check_if_radio_code_exists(const uint8_t *new_code);
+bool eeprom_store_new_radio_code(const uint8_t *new_code, const uint8_t new_code_len, uint8_t *new_code_id);
 
 #endif /* EEPROM_H_ */
