@@ -89,10 +89,10 @@ static const at24cxx_mem at24cxx_devices[] =
  * @brief Initialize eeprom.
  *
  * @param  dev at24cxx device object
- * @param i2c_addr  I2C chip address.
+ * @param i2c_addr  I2C chip address. (A2, A1, A0 pins - GND=0, VCC=1)
  * @param mem_type  memory type
  */
-at24cxx_status at24cxx_init(at24cxx* const dev);
+at24cxx_status at24cxx_init(at24cxx* const dev, uint8_t i2c_addr_pins);
 
 /**
  * @brief Write data into memory.

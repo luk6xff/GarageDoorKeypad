@@ -16,7 +16,7 @@
 //------------------------------------------------------------------------------
 // DEFINES, EXTERNS
 //------------------------------------------------------------------------------
-#define AT24C64_I2C_ADDR 0xA0   /* |1|0|1|0|A2|A1|A0|R/W| */
+#define AT24C64_I2C_ADDR_PINS 0x00   /* |1|0|1|0|A2|A1|A0|R/W| - A2=0, A1=0, A0=0 */
 extern I2C_HandleTypeDef hi2c2;
 
 //------------------------------------------------------------------------------
@@ -36,8 +36,8 @@ static uint32_t compute_checksum(const uint8_t *data, const uint8_t data_len);
 static const eeprom_data eeprom_data_default =
 {
 	.magic = 0x12345678,
-	.version = 0x00000001,
-	.dev_id = 0xD8A7C6E5,
+	.version = 0x00000002,
+	.dev_id = 0x66BCDE77,
 	.num_of_radio_stored = 0,
 	.crc = 0x000000000
 };
@@ -57,7 +57,6 @@ static at24cxx_cube at24c64_cube =
 static at24cxx at24c64 =
 {
 	.type = AT24C64,
-	.addr = AT24C64_I2C_ADDR,
 };
 
 
@@ -82,7 +81,7 @@ const eeprom_data* eeprom_data_get_current()
 void eeprom_init()
 {
 	// AT24C64 EEPROM init
-	at24cxx_cube_init(&at24c64, &at24c64_cube);
+	at24cxx_cube_init(&at24c64, &at24c64_cube, AT24C64_I2C_ADDR_PINS);
 
     if (eeprom_data_read())
     {

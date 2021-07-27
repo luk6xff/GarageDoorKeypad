@@ -4,10 +4,10 @@
 
 
 //-----------------------------------------------------------------------------
-void at24cxx_mbed_init(at24cxx* const dev, at24cxx_mbed* const mbed_dev)
+void at24cxx_mbed_init(at24cxx* const dev, at24cxx_mbed* const mbed_dev, uint8_t i2c_addr_pins)
 {
     dev->platform_dev = mbed_dev;
-    at24cxx_init(dev);
+    at24cxx_init(dev, i2c_addr_pins);
 }
 
 //-----------------------------------------------------------------------------

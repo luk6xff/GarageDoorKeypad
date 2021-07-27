@@ -2,10 +2,10 @@
 
 
 //-------------------------------------------------------------------------------
-void at24cxx_cube_init(at24cxx* const dev, at24cxx_cube* const cube_dev)
+void at24cxx_cube_init(at24cxx* const dev, at24cxx_cube* const cube_dev, uint8_t i2c_addr_pins)
 {
     dev->platform_dev = cube_dev;
-    at24cxx_init(dev);
+    at24cxx_init(dev, i2c_addr_pins);
 }
 
 //------------------------------------------------------------------------------
@@ -39,14 +39,30 @@ at24cxx_status at24cxx_write_buffer(const at24cxx* const dev, uint32_t addr,
     }
 
     const at24cxx_cube* const pd = (at24cxx_cube*)dev->platform_dev;
-	printf("AT24CXX  WRITE = 0x%x\r\n", dev->addr);
-    uint8_t tmp[2+buf_size];
-    tmp[0] = addr >> 8;
-    tmp[1] = addr;
-    memcpy(&tmp[2], buf, buf_size);
+    const uint8_t addr_len = at24cxx_devices[dev->type].word_addr_len;
 
-    int ack = HAL_I2C_Master_Transmit(pd->i2c, dev->addr, tmp, sizeof(tmp), 1000);
-    if (ack != 0)
+    uint8_t data[addr_len+buf_size];
+    if (addr_len == 1)
+    {
+    	data[0] = addr;
+    }
+    else if (addr_len == 2)
+    {
+    	data[0] = addr >> 8;
+    	data[1] = addr & 0xFF;
+    }
+    else
+    {
+    	// Word address length not supported
+    	return AT24CXX_PARAM_ERR;
+    }
+
+    memcpy(&data[addr_len], buf, buf_size);
+
+    while (HAL_I2C_IsDeviceReady(pd->i2c, (uint16_t)dev->addr, 3, 100) != HAL_OK) {}
+
+    int ack = HAL_I2C_Master_Transmit(pd->i2c, (uint16_t)dev->addr, data, sizeof(data), 1000);
+    if (ack != HAL_OK)
     {
         return AT24CXX_ERR;
     }
@@ -65,31 +81,35 @@ at24cxx_status at24cxx_read_buffer(const at24cxx* const dev, uint32_t addr,
     {
         address[0] = addr;
     }
-    else
+    else if (addr_len == 2)
     {
         address[0] = addr >> 8;
-        address[1] = addr;
+        address[1] = addr & 0xFF;
+    }
+    else
+    {
+    	// word address length not supported
+    	return AT24CXX_PARAM_ERR;
     }
 
+    while (HAL_I2C_IsDeviceReady(pd->i2c, (uint16_t)dev->addr, 3, 100) != HAL_OK) {};
+
     // Write addr
-    int ack = HAL_I2C_Master_Transmit(pd->i2c, dev->addr, (char*)address, addr_len, 1000);
-    if (ack != 0)
+    int ack = HAL_I2C_Master_Transmit(pd->i2c, (uint16_t)dev->addr, address, addr_len, 1000);
+    if (ack != HAL_OK)
     {
         return AT24CXX_I2C_ERR;
     }
 
+    while (HAL_I2C_IsDeviceReady(pd->i2c, (uint16_t)dev->addr, 3, 100) != HAL_OK) {};
+
     // Sequential Read
-    uint8_t buff[buf_size];
-    int retVal = HAL_I2C_Master_Receive(pd->i2c, dev->addr, buff, buf_size, 1000);
-    if (retVal != 0)
+    int retVal = HAL_I2C_Master_Receive(pd->i2c, (uint16_t)dev->addr, buf, buf_size, 1000);
+    if (retVal != HAL_OK)
     {
         return AT24CXX_ERR;
     }
 
-    for (int i = 0; i < buf_size; ++i)
-    {
-    	printf("AT24CXX  RBUF DATA[%d]= 0x%x\r\n", i, buff[i]);
-    }
     return AT24CXX_NOERR;
 }
 

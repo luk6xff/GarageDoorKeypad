@@ -31,7 +31,7 @@ void radio_init()
 	{
 	  printf("%s", nrf24l01_not_connected);
 	}
-	nrf24l01_print_all_regs();
+	//nrf24l01_print_all_regs();
 	nrf24l01_power_down();
 }
 

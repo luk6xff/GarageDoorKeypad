@@ -1,7 +1,7 @@
  #include "at24cxx.h"
 
 //------------------------------------------------------------------------------
-at24cxx_status at24cxx_init(at24cxx* const dev)
+at24cxx_status at24cxx_init(at24cxx* const dev, uint8_t i2c_addr_pins)
 {
     if (!dev)
     {
@@ -69,6 +69,7 @@ at24cxx_status at24cxx_init(at24cxx* const dev)
         default:
             return AT24CXX_PARAM_ERR;
     }
+
     at24cxx_io_init(dev);
 
     return AT24CXX_NOERR;
@@ -135,7 +136,6 @@ at24cxx_status at24cxx_write(const at24cxx* const dev, uint32_t addr,
     {
         const size_t offset = bytes_to_be_send_left + (page_num*page_size);
         ret = at24cxx_write_buffer(dev, addr + offset, &data[offset], page_size);
-        printf("AT24CXX sending full pages:data_size:%d, %d bytes to offset: 0x%x\r\n",data_size, page_size, addr + offset);
 
         at24cxx_wait_for_ready(dev);
         if (ret != AT24CXX_NOERR)
@@ -161,10 +161,7 @@ at24cxx_status at24cxx_read(const at24cxx* const dev, uint32_t addr,
 
     ret = at24cxx_read_buffer(dev, addr, data, data_size);
     at24cxx_wait_for_ready(dev);
-    for (int i = 0; i < data_size; ++i)
-    {
-    	printf("AT24CXX DATA[%d]= 0x%x\r\n", i, data[i]);
-    }
+
     if (ret != AT24CXX_NOERR)
     {
         return ret;

@@ -24,7 +24,7 @@ typedef enum
 
 typedef enum
 {
-	BUTTON_NONE = 			(0),
+	BUTTON_NONE =		(0),
 	BUTTON_0 = 			(BUTTON_INPUT_C | BUTTON_INPUT_E),
 	BUTTON_1 = 			(BUTTON_INPUT_A | BUTTON_INPUT_E),
 	BUTTON_2 = 			(BUTTON_INPUT_A | BUTTON_INPUT_G),
