@@ -147,18 +147,18 @@ void eeprom_data_print_current()
 }
 
 //------------------------------------------------------------------------------
-int eeprom_check_if_radio_code_exists(const uint8_t *new_code)
+int eeprom_check_if_radio_code_exists(const uint8_t *radio_code)
 {
 	int ret = -1;
 
-	if (!new_code)
+	if (!radio_code)
 	{
 		return ret;
 	}
 
 	for (size_t i = 0; i < NUM_OF_SUPPORTED_RADIOS; ++i)
 	{
-		if (memcmp(eeprom_data_get_current()->radio_configs[i].code, new_code, RADIO_CODE_SIZE) == 0)
+		if (memcmp(eeprom_data_get_current()->radio_configs[i].code, radio_code, RADIO_CODE_SIZE) == 0)
 		{
 			ret = i;
 			break;
@@ -175,34 +175,37 @@ bool eeprom_store_new_radio_code(const uint8_t *new_code,
 								uint8_t new_code_id)
 {
 	bool ret = false;
-
+	printf("programming - eeprom_store_new_radio_code\r\n");
 	if (!new_code || new_code_len != RADIO_CODE_SIZE)
 	{
-		printf("eeprom - New radio code not stored: !new_code || new_code_len != RADIO_CODE_SIZE, new_code_len:%d", new_code_len);
+		printf("eeprom - New radio code not stored: invalid new code len:%d\r\n", new_code_len);
 		return ret;
 	}
 
 	if (new_code_id > (NUM_OF_SUPPORTED_RADIOS-1))
 	{
-		printf("eeprom - New radio code not stored: new_code_id > (NUM_OF_SUPPORTED_RADIOS-1), new_code_id:%d", new_code_id);
+		printf("eeprom - New radio code not stored: invalid new_code_id:%d\r\n", new_code_id);
 		return ret;
 	}
 
 	// Check if given ID is already stored
-	if (eeprom_data_get_current()->radio_configs[new_code_id].id != RADIO_CODE_ID_INVALID)
+	if (eeprom_data_get_current()->radio_configs[new_code_id].id == new_code_id)
 	{
-		printf("eeprom - There is already a radio_code id:%d registered. Press ArrowUP then number again", new_code_id);
+		printf("eeprom - There is already a radio_code id:%d registered. Press ArrowUP then number again\r\n", new_code_id);
 	}
 	else
 	{
 		// Store a new code under a given ID
 		eeprom_data_get_current()->radio_configs[new_code_id].id = new_code_id;
 		memcpy(eeprom_data_get_current()->radio_configs[new_code_id].code, new_code, new_code_len);
-		printf("eeprom - A new radio code: [0]=0x%x,[1]=0x%x,[2]=0x%x,[3]=0x%x stored succesfully! with ID:%d.",
+		printf("eeprom - A new radio code: [0]=0x%x,[1]=0x%x,[2]=0x%x,[3]=0x%x stored succesfully! with ID:%d\r\n",
 				new_code[0], new_code[1], new_code[2], new_code[3],new_code_id);
+		// Store to eeprom
+		eeprom_data_store(eeprom_data_get_current());
 		ret = true;
 	}
 
+	printf("eeprom - ret:%d\r\n", ret);
 
 	return ret;
 }

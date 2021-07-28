@@ -6,6 +6,7 @@
  */
 
 #include "state_processing.h"
+#include "states_common.h"
 #include "../Storage/eeprom.h"
 #include "../Radio/radio.h"
 #include "main.h"
@@ -33,18 +34,6 @@ static void clear_radio_code()
 }
 
 //------------------------------------------------------------------------------
-static void verify_radio_code()
-{
-	if (current_radio_code_idx == RADIO_CODE_SIZE)
-	{
-		printf("RADIO code provided: [0]:%d, [1]:%d, [2]:%d, [3]:%d\r\n", \
-				current_radio_code[0], current_radio_code[1], current_radio_code[2], current_radio_code[3]);
-		clear_radio_code();
-	}
-}
-
-
-//------------------------------------------------------------------------------
 void state_processing(SmCtx *sm)
 {
 	if (sm->last_pressed_btn != BUTTON_NONE)
@@ -52,7 +41,7 @@ void state_processing(SmCtx *sm)
 		const uint32_t timestamp_ms = HAL_GetTick();
 		if (last_button_pressed_timestamp > 0 && (timestamp_ms - last_button_pressed_timestamp) > k_max_time_between_consecutive_btns_ms)
 		{
-			printf("RADIO code timeout expired-> timestamp_ms:%d, last_button_pressed_timestamp:%d\r\n", timestamp_ms, last_button_pressed_timestamp);
+			printf("processing - RADIO code timeout expired-> timestamp_ms:%d, last_button_pressed_timestamp:%d\r\n", timestamp_ms, last_button_pressed_timestamp);
 			// Clear last provided radio code
 			clear_radio_code();
 		}
@@ -62,7 +51,27 @@ void state_processing(SmCtx *sm)
 //			printf("RADIO code current_radio_code_idx=%d\r\n", current_radio_code_idx);
 			current_radio_code[current_radio_code_idx++] = sm->last_pressed_btn;
 			last_button_pressed_timestamp = timestamp_ms;
-			verify_radio_code();
+			// Check if provided code is full and valid
+			if (verify_radio_code(current_radio_code, current_radio_code_idx))
+			{
+				const int radio_code_id = eeprom_check_if_radio_code_exists(current_radio_code);
+				if (radio_code_id != -1)
+				{
+					printf("processing - eeprom_check_if_radio_code_exists - true\r\n");
+					radio_msg msg;
+					msg.msg_type = MSG_CODE_REQ;
+					memcpy(&(msg.radio_code), &(eeprom_data_get_current()->radio_configs[radio_code_id]), sizeof(msg.radio_code));
+					printf("processing - Sending a new radio msg: MSG_CODE_REQ...\r\n");
+					radio_send_msg(&msg);
+					// LU_TODO Wait for response
+					//........
+				}
+			}
+
+			if (current_radio_code_idx >= RADIO_CODE_SIZE)
+			{
+				clear_radio_code();
+			}
 		}
 	}
 
@@ -71,5 +80,6 @@ void state_processing(SmCtx *sm)
 		// Clear last provided radio code
 		clear_radio_code();
 		sm->current_state = Programming;
+		printf("< programming >\r\n");
 	}
 }

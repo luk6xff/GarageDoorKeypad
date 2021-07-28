@@ -6,6 +6,7 @@
  */
 
 
+#include "radio.h"
 #include "NRF24L01+/platform/stm32cube/nrf24l01-cube.h"
 #include "main.h"
 #include <stdio.h>
@@ -43,27 +44,49 @@ void radio_deinit()
 }
 
 //------------------------------------------------------------------------------
-bool radio_send_data(const uint16_t recv_dev_id, const uint8_t* data,
+bool radio_send_data(const uint16_t recv_dev_id, const uint8_t *data,
                     const uint32_t data_len)
 {
-    int ret = nrf24l01_write(0, data, data_len);
+    int ret = nrf24l01_write((uint8_t)recv_dev_id, data, data_len);
     if (ret > 0)
     {
-  	  printf("nrf24l01 data sent succesfully!");
+  	  printf("nrf24l01 data sent succesfully!\r\n");
     }
     return ret;
 }
 
 //------------------------------------------------------------------------------
-bool radio_read_data(uint8_t *data, uint32_t *data_len)
+bool radio_read_data(const uint16_t recv_dev_id, uint8_t *data, const uint32_t data_len)
 {
     bool msg_received = false;
 
     // Check for any message
-    if (nrf24l01_read(0, data, *data_len) > 0)
+    if (nrf24l01_read((uint8_t)recv_dev_id, data, data_len) > 0)
     {
-    	printf("nrf24l01 data received succesfully!");
+    	printf("nrf24l01 data received succesfully!\r\n");
     }
 
 	return msg_received;
+}
+
+
+//------------------------------------------------------------------------------
+bool radio_send_msg(const radio_msg *msg)
+{
+	if (!msg)
+	{
+		return false;
+	}
+	return radio_send_data(0, (const uint8_t*)msg, sizeof(radio_msg));
+}
+
+//------------------------------------------------------------------------------
+bool radio_read_msg(radio_msg *msg)
+{
+	if (!msg)
+	{
+		return false;
+	}
+
+	return radio_read_data(0, (uint8_t*)msg, sizeof(radio_msg));
 }

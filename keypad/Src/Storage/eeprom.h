@@ -13,7 +13,6 @@
 
 #define NUM_OF_SUPPORTED_RADIOS 10
 #define RADIO_CODE_SIZE 4
-#define RADIO_CODE_ID_INVALID 0xFFFFFFFF
 
 typedef struct
 {
@@ -49,7 +48,7 @@ void eeprom_data_print_current();
  *
  * @returns radio_config code.id if exists, -1 otherwise;
  */
-int eeprom_check_if_radio_code_exists(const uint8_t *new_code);
+int eeprom_check_if_radio_code_exists(const uint8_t *radio_code);
 bool eeprom_store_new_radio_code(const uint8_t *new_code, const uint8_t new_code_len,
 									uint8_t new_code_id);
 
