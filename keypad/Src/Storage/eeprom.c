@@ -38,7 +38,7 @@ static const eeprom_data eeprom_data_default =
 	.magic = 0x12345678,
 	.version = 0x00000003,
 	.dev_id = 0x66BCDE77,
-	.num_of_radio_stored = 0,
+	.radio_configs = {0xFF},
 	.crc = 0x000000000
 };
 
@@ -66,13 +66,13 @@ static at24cxx at24c64 =
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-const eeprom_data* eeprom_data_get_defaults()
+eeprom_data * const eeprom_data_get_defaults()
 {
 	return &eeprom_data_default;
 }
 
 //------------------------------------------------------------------------------
-const eeprom_data* eeprom_data_get_current()
+eeprom_data * const eeprom_data_get_current()
 {
 	return &eeprom_data_current;
 }
@@ -143,20 +143,29 @@ void eeprom_data_print_current()
 	printf(".magic:0x%x\r\n", eeprom_data_get_current()->magic);
 	printf(".version:0x%x\r\n", eeprom_data_get_current()->version);
 	printf(".dev_id:0x%x\r\n", eeprom_data_get_current()->dev_id);
-	printf(".num_of_radio_stored:%d\r\n", eeprom_data_get_current()->num_of_radio_stored);
 	printf(".crc:0x%x\r\n", eeprom_data_get_current()->crc);
 }
 
 //------------------------------------------------------------------------------
-bool eeprom_check_if_radio_code_exists(const uint8_t *new_code)
+int eeprom_check_if_radio_code_exists(const uint8_t *new_code)
 {
+	int ret = -1;
+
 	if (!new_code)
 	{
-		return false;
+		return ret;
 	}
 
+	for (size_t i = 0; i < NUM_OF_SUPPORTED_RADIOS; ++i)
+	{
+		if (memcmp(eeprom_data_get_current()->radio_configs[i].code, new_code, RADIO_CODE_SIZE) == 0)
+		{
+			ret = i;
+			break;
+		}
+	}
 
-	return true;
+	return ret;
 }
 
 
@@ -166,27 +175,36 @@ bool eeprom_store_new_radio_code(const uint8_t *new_code,
 								uint8_t new_code_id)
 {
 	bool ret = false;
+
 	if (!new_code || new_code_len != RADIO_CODE_SIZE)
 	{
-		return false;
+		printf("eeprom - New radio code not stored: !new_code || new_code_len != RADIO_CODE_SIZE, new_code_len:%d", new_code_len);
+		return ret;
 	}
 
-//	if (eeprom_data_get_current()->num_of_radio_stored >= NUM_OF_SUPPORTED_RADIOS)
-//	{
-//		printf("eeprom - cannot store new radio code: num_of_radio_stored >= NUM_OF_SUPPORTED_RADIOS");
-//		return false;
-//	}
-
-	for (size_t i = 0; i < NUM_OF_SUPPORTED_RADIOS; i++)
+	if (new_code_id > (NUM_OF_SUPPORTED_RADIOS-1))
 	{
-		if (eeprom_data_get_current()->radio_configs[i].id == new_code_id)
-		{
-			printf("eeprom - There is already a radio_code id:%d registered. Overriting...", new_code_id);
-			memcpy(eeprom_data_get_current()->radio_configs[i].code, new_code, new_code_len);
-		}
+		printf("eeprom - New radio code not stored: new_code_id > (NUM_OF_SUPPORTED_RADIOS-1), new_code_id:%d", new_code_id);
+		return ret;
 	}
 
-	return true;
+	// Check if given ID is already stored
+	if (eeprom_data_get_current()->radio_configs[new_code_id].id != RADIO_CODE_ID_INVALID)
+	{
+		printf("eeprom - There is already a radio_code id:%d registered. Press ArrowUP then number again", new_code_id);
+	}
+	else
+	{
+		// Store a new code under a given ID
+		eeprom_data_get_current()->radio_configs[new_code_id].id = new_code_id;
+		memcpy(eeprom_data_get_current()->radio_configs[new_code_id].code, new_code, new_code_len);
+		printf("eeprom - A new radio code: [0]=0x%x,[1]=0x%x,[2]=0x%x,[3]=0x%x stored succesfully! with ID:%d.",
+				new_code[0], new_code[1], new_code[2], new_code[3],new_code_id);
+		ret = true;
+	}
+
+
+	return ret;
 }
 
 
