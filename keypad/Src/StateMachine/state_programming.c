@@ -132,8 +132,10 @@ void state_programming(SmCtx *sm)
 				}
 				// Clear last provided radio code
 				clear_radio_code();
-				sm->current_state = Processing;
-				printf("< processing >\r\n");
+				//sm->current_state = Processing;
+				//printf("< processing >\r\n");
+				sm->current_state = Sleeping;
+				printf("< sleeping >\r\n");
 			}
 		}
 	}
