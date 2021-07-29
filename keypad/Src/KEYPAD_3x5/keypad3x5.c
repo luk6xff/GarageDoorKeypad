@@ -1,6 +1,6 @@
 #include "keypad3x5.h"
 #include "main.h"
-
+#include <stdio.h>
 
 //------------------------------------------------------------------------------
 #define KEYPAD_TIMER_ONE_COUNT_PERIOD 	10  // ms
