@@ -98,4 +98,17 @@ void nrf24l01_print_all_regs()
     }
 }
 
+//------------------------------------------------------------------------------
+void nrf24l01_print_chip_info()
+{
+    printf("\r\n<<<NRF24L01 CHIP INFO>>>\r\n");
+	printf( "nRF24L01+ Frequency    : %d MHz\r\n",  nrf24l01_get_rf_freq() );
+	printf( "nRF24L01+ Output power : %d dBm\r\n",  nrf24l01_get_rf_tx_power() );
+	printf( "nRF24L01+ Data Rate    : %d kbps\r\n", nrf24l01_get_data_rate() );
+	printf( "nRF24L01+ Transfer Size: %d bytes\r\n", nrf24l01_get_transfer_size(0) );
+	printf( "nRF24L01+ TX Address   : 0x%x\r\n", nrf24l01_get_tx_addr() );
+	printf( "nRF24L01+ RX Address   : 0x%x\r\n", nrf24l01_get_rx_addr(0) );
+}
+
+
 //-----------------------------------------------------------------------------

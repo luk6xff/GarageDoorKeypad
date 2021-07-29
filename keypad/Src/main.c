@@ -119,7 +119,7 @@ int main(void)
   MX_SPI2_Init();
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
-  printf("> Hello from Garage Door Keypad < --- luk6xff-2021\r\n");
+  printf("\r\n\r\n\r\n>>> Hello from Garage Door KEYPAD <<< by luk6xff-2021\r\n");
 
   // State machine initialization
   sm_init();

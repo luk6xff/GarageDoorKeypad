@@ -7,8 +7,8 @@
 
 #include "state_programming.h"
 #include "states_common.h"
-#include "../Storage/eeprom.h"
-#include "../Radio/radio.h"
+#include "Storage/eeprom.h"
+#include "Radio/radio.h"
 #include "main.h"
 #include <stdio.h>
 

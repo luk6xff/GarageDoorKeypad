@@ -1,5 +1,5 @@
 /**
- *  @brief:   NRF24L01+ radio module library
+ *  @brief:   NRF24L01+ radio module library based on https://os.mbed.com/users/Owen/code/nRF24L01P/
  *  @author:  luk6xff
  *  @email:   lukasz.uszko@gmail.com
  *  @date:    2019-12-01
@@ -13,7 +13,6 @@
 extern "C" {
 #endif
 
-#include "nrf24l01_registers.h"
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
@@ -354,9 +353,13 @@ extern void nrf24l01_delay_ms(uint32_t delay_ms);
 
 /**
  * @brief Prints the content of all registers.
- *
  */
 extern void nrf24l01_print_all_regs();
+
+/**
+ * @brief Print chip info.
+ */
+extern void nrf24l01_print_chip_info();
 
 
 #ifdef __cplusplus

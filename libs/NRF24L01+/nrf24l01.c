@@ -1,4 +1,5 @@
 #include "nrf24l01.h"
+#include <stdio.h>
 
 
 typedef enum
@@ -158,8 +159,7 @@ void nrf24l01_init(void)
     nrf24l01_mode = _NRF24L01P_MODE_POWER_DOWN;
 
 }
-#include "stm32f0xx_hal.h"
-#include "main.h"
+
 //------------------------------------------------------------------------------
 bool nrf24l01_is_connected()
 {
@@ -737,7 +737,7 @@ bool nrf24l01_available(uint8_t pipe_num)
 
     if ((pipe_num < NRF24L01P_PIPE_P0) || (pipe_num > NRF24L01P_PIPE_P5))
     {
-        //printf("nRF24L01P: Invalid nrf24l01_available pipe_num number %d\r\n", pipe_num);
+        printf("nRF24L01P: Invalid nrf24l01_available pipe_num number %d\r\n", pipe_num);
         return false;
     }
 
@@ -807,15 +807,16 @@ int nrf24l01_write(uint8_t pipe_num, uint8_t *data, int len)
 //------------------------------------------------------------------------------
 int nrf24l01_read(uint8_t pipe_num, uint8_t *data, int len)
 {
-    if ((pipe_num < NRF24L01P_PIPE_P0) || (pipe_num > NRF24L01P_PIPE_P5))
+
+    if (len <= 0)
     {
-        //printf("nRF24L01P: Invalid nrf24l01_read pipe_num number %d\r\n", pipe_num);
-        return -1;
+    	return 0;
     }
 
-    if (len <= 0) return 0;
-
-    if (len > _NRF24L01P_RX_FIFO_SIZE) len = _NRF24L01P_RX_FIFO_SIZE;
+    if (len > _NRF24L01P_RX_FIFO_SIZE)
+    {
+    	len = _NRF24L01P_RX_FIFO_SIZE;
+    }
 
     if (nrf24l01_available(pipe_num))
     {
@@ -831,7 +832,6 @@ int nrf24l01_read(uint8_t pipe_num, uint8_t *data, int len)
         {
 
             // Received payload error: need to flush the FIFO
-
             nrf24l01_set_csn_pin(false);
 
             int status = nrf24l01_spi_write(_NRF24L01P_SPI_CMD_FLUSH_RX);

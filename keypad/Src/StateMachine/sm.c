@@ -10,8 +10,8 @@
 
 #include "sm.h"
 #include "states.h"
-#include "../Storage/eeprom.h"
-#include "../Radio/radio.h"
+#include "Storage/eeprom.h"
+#include "Radio/radio.h"
 
 //------------------------------------------------------------------------------
 static SmCtx sm_ctx;

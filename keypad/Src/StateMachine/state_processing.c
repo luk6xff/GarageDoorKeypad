@@ -7,8 +7,8 @@
 
 #include "state_processing.h"
 #include "states_common.h"
-#include "../Storage/eeprom.h"
-#include "../Radio/radio.h"
+#include "Storage/eeprom.h"
+#include "Radio/radio.h"
 #include "main.h"
 #include <stdio.h>
 
@@ -81,5 +81,12 @@ void state_processing(SmCtx *sm)
 		clear_radio_code();
 		sm->current_state = Programming;
 		printf("< programming >\r\n");
+	}
+
+
+	radio_msg msg;
+	if (radio_read_msg(&msg))
+	{
+		printf("processing - New radio msg received, MSG_TYPE:%d\r\n", msg.msg_type);
 	}
 }

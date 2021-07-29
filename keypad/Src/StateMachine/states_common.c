@@ -6,7 +6,7 @@
  */
 
 #include "states_common.h"
-#include "../Storage/eeprom.h"
+#include "Storage/eeprom.h"
 #include "../KEYPAD_3x5/keypad3x5.h"
 #include <stdio.h>
 
