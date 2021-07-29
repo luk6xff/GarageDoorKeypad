@@ -21,7 +21,7 @@ typedef enum
 typedef struct
 {
 	uint32_t msg_type; // radio_msg_type
-	radio_config radio_code;
+	radio_config radio_cfg;
 } radio_msg;
 
 #endif /* RADIO_RADIO_MSG_H_ */

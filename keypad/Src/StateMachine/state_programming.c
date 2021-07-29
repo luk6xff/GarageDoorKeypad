@@ -9,6 +9,7 @@
 #include "states_common.h"
 #include "Storage/eeprom.h"
 #include "Radio/radio.h"
+#include "../KEYPAD_3x5/leds.h"
 #include "main.h"
 #include <stdio.h>
 
@@ -115,11 +116,38 @@ void state_programming(SmCtx *sm)
 						// LU_TODO Send frame to a NODE and wait for response
 						radio_msg msg;
 						msg.msg_type = MSG_CODE_PROGRAM_REQ;
-						memcpy(&(msg.radio_code), &(eeprom_data_get_current()->radio_configs[button_id_to_radio_config_id(current_radio_code_id_button)]), sizeof(msg.radio_code));
+						memcpy(&(msg.radio_cfg), &(eeprom_data_get_current()->radio_configs[button_id_to_radio_config_id(current_radio_code_id_button)]), sizeof(msg.radio_cfg));
 						printf("programming - Sending a new radio msg: MSG_CODE_PROGRAM_REQ...\r\n");
 						radio_send_msg(&msg);
-						// LU_TODO Wait for response
-						//........
+						const uint32_t start_ms = HAL_GetTick();
+						const uint32_t timeout_ms = 3000;
+						bool response_received = false;
+						while ((HAL_GetTick() - start_ms) < timeout_ms)
+						{
+							if (radio_read_msg(&msg))
+							{
+								printf("programming - Radio response received! MSG_TYPE:%d\r\n", msg.msg_type);
+								if (msg.msg_type == MSG_CODE_PROGRAM_RES)
+								{
+									response_received = true;
+									break;
+								}
+							}
+						}
+						if (response_received)
+						{
+							printf("programming - Radio response MSG_CODE_PROGRAM_RES successfully received\r\n");
+							led_toogle(LED_GREEN, 200);
+							led_toogle(LED_GREEN, 200);
+							led_toogle(LED_GREEN, 200);
+						}
+						else
+						{
+							printf("programming- No Radio response MSG_CODE_PROGRAM received during timeout\r\n");
+							led_toogle(LED_RED, 200);
+							led_toogle(LED_RED, 200);
+							led_toogle(LED_RED, 200);
+						}
 					}
 					else
 					{

@@ -9,6 +9,7 @@
 #include "states_common.h"
 #include "Storage/eeprom.h"
 #include "Radio/radio.h"
+#include "../KEYPAD_3x5/leds.h"
 #include "main.h"
 #include <stdio.h>
 
@@ -60,7 +61,7 @@ void state_processing(SmCtx *sm)
 					printf("processing - eeprom_check_if_radio_code_exists - true\r\n");
 					radio_msg msg;
 					msg.msg_type = MSG_CODE_REQ;
-					memcpy(&(msg.radio_code), &(eeprom_data_get_current()->radio_configs[radio_code_id]), sizeof(msg.radio_code));
+					memcpy(&(msg.radio_cfg), &(eeprom_data_get_current()->radio_configs[radio_code_id]), sizeof(msg.radio_cfg));
 					printf("processing - Sending a new radio msg: MSG_CODE_REQ...\r\n");
 					radio_send_msg(&msg);
 					const uint32_t start_ms = HAL_GetTick();
@@ -71,19 +72,26 @@ void state_processing(SmCtx *sm)
 						if (radio_read_msg(&msg))
 						{
 							printf("processing - Radio response received! MSG_TYPE:%d\r\n", msg.msg_type);
-							response_received = true;
-							break;
+							if (msg.msg_type == MSG_CODE_RES)
+							{
+								response_received = true;
+								break;
+							}
 						}
 					}
 					if (response_received)
 					{
-						printf("processing - Radio response succesfully received\r\n");
-						// Blink LEDS
+						printf("processing - Radio response MSG_CODE_RES successfully received\r\n");
+						led_toogle(LED_GREEN, 200);
+						led_toogle(LED_GREEN, 200);
+						led_toogle(LED_GREEN, 200);
 					}
 					else
 					{
-						printf("processing - No Radio response received during timeout\r\n");
-						// Blink LEDS
+						printf("processing - No Radio MSG_CODE_RES response received during timeout\r\n");
+						led_toogle(LED_RED, 200);
+						led_toogle(LED_RED, 200);
+						led_toogle(LED_RED, 200);
 					}
 				}
 			}

@@ -39,14 +39,20 @@ void led_toogle(Leds led, uint32_t toogle_time_ms)
 	if (led == LED_GREEN)
 	{
 		HAL_GPIO_TogglePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin);
-		HAL_Delay(toogle_time_ms);
-		HAL_GPIO_TogglePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin);
+		if (toogle_time_ms != 0)
+		{
+			HAL_Delay(toogle_time_ms);
+			HAL_GPIO_TogglePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin);
+		}
 	}
 	else if (led == LED_RED)
 	{
 		HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
-		HAL_Delay(toogle_time_ms);
-		HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
+		if (toogle_time_ms != 0)
+		{
+			HAL_Delay(toogle_time_ms);
+			HAL_GPIO_TogglePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin);
+		}
 	}
 
 
