@@ -29,6 +29,11 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>common</name>
+			<type>2</type>
+			<location>/home/luk6xff/Projects/GarageDoorKeypad/common</location>
+		</link>
+		<link>
 			<name>libs</name>
 			<type>2</type>
 			<location>/home/luk6xff/Projects/GarageDoorKeypad/libs</location>
@@ -37,11 +42,6 @@
 			<name>platform</name>
 			<type>2</type>
 			<location>/home/luk6xff/Projects/GarageDoorKeypad/libs/AT24CXX/platform</location>
-		</link>
-		<link>
-			<name>common</name>
-			<type>2</type>
-			<location>/home/luk6xff/Projects/GarageDoorKeypad/common</location>
 		</link>
 		<link>
 			<name>Drivers/STM32F0xx_HAL_Driver/stm32f0xx_hal.c</name>
