@@ -63,8 +63,28 @@ void state_processing(SmCtx *sm)
 					memcpy(&(msg.radio_code), &(eeprom_data_get_current()->radio_configs[radio_code_id]), sizeof(msg.radio_code));
 					printf("processing - Sending a new radio msg: MSG_CODE_REQ...\r\n");
 					radio_send_msg(&msg);
-					// LU_TODO Wait for response
-					//........
+					const uint32_t start_ms = HAL_GetTick();
+					const uint32_t timeout_ms = 2000;
+					bool response_received = false;
+					while ((HAL_GetTick() - start_ms) < timeout_ms)
+					{
+						if (radio_read_msg(&msg))
+						{
+							printf("processing - Radio response received! MSG_TYPE:%d\r\n", msg.msg_type);
+							response_received = true;
+							break;
+						}
+					}
+					if (response_received)
+					{
+						printf("processing - Radio response succesfully received\r\n");
+						// Blink LEDS
+					}
+					else
+					{
+						printf("processing - No Radio response received during timeout\r\n");
+						// Blink LEDS
+					}
 				}
 			}
 
@@ -81,12 +101,5 @@ void state_processing(SmCtx *sm)
 		clear_radio_code();
 		sm->current_state = Programming;
 		printf("< programming >\r\n");
-	}
-
-
-	radio_msg msg;
-	if (radio_read_msg(&msg))
-	{
-		printf("processing - New radio msg received, MSG_TYPE:%d\r\n", msg.msg_type);
 	}
 }

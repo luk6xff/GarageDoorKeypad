@@ -32,13 +32,14 @@ void app_run()
 		if (radio_read_msg(&msg))
 		{
 			printf("New radio msg received, MSG_TYPE:%d\r\n", msg.msg_type);
+			if (msg.msg_type == MSG_CODE_REQ)
+			{
+				msg.msg_type = MSG_CODE_RES;
+				memcpy(&(msg.radio_code), &(eeprom_data_get_current()->radio_configs[0]), sizeof(msg.radio_code));
+				printf("Sending a MSG_CODE_RES to keypad\r\n");
+				radio_send_msg(&msg);
+			}
 		}
-
-		HAL_Delay(1000);
-		msg.msg_type = MSG_CODE_RES;
-		memcpy(&(msg.radio_code), &(eeprom_data_get_current()->radio_configs[0]), sizeof(msg.radio_code));
-		printf("Sending a new radio msg: MSG_CODE_RES...\r\n");
-		radio_send_msg(&msg);
 	}
 }
 
