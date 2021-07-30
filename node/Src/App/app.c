@@ -126,7 +126,6 @@ static void app_programming_mode()
 			last_time_ms = HAL_GetTick();
 			led_toogle(0);
 		}
-
 		// Kick the watchdog
 		HAL_IWDG_Refresh(&hiwdg);
 	}
