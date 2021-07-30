@@ -58,13 +58,17 @@ static void handle_code_program_request(const radio_msg *msg)
 {
 	if (msg->msg_type == MSG_CODE_PROGRAM_REQ)
 	{
-		if (eeprom_store_new_radio_code(msg->radio_cfg.code, sizeof(msg->radio_cfg.code), msg->radio_cfg.id, false))
+		if (eeprom_store_new_radio_code(msg->radio_cfg.code, sizeof(msg->radio_cfg.code), msg->radio_cfg.id))
 		{
 			printf("programming - New radio_code successfully stored! id:%lu\r\n", msg->radio_cfg.id);
 			radio_msg res;
 			res.msg_type = MSG_CODE_PROGRAM_RES;
 			radio_send_msg(&res);
 			led_toogle_loop(k_led_toogle_time_ms, 6);
+		}
+		else
+		{
+			printf("programming - Storing new radio code id:%lu failed!\r\n", msg->radio_cfg.id);
 		}
 	}
 }

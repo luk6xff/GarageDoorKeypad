@@ -23,8 +23,6 @@ static uint32_t last_button_pressed_timestamp = 0;
 static KeypadButtonPressed current_radio_code[RADIO_CODE_SIZE] = {BUTTON_NONE};
 static uint8_t current_radio_code_idx = 0;
 
-
-
 //------------------------------------------------------------------------------
 static void clear_radio_code()
 {
@@ -99,6 +97,8 @@ void state_processing(SmCtx *sm)
 
 			if (current_radio_code_idx >= RADIO_CODE_SIZE)
 			{
+				// Check if clear code has been applied
+				verify_and_clear_radio_codes(current_radio_code, current_radio_code_idx);
 				clear_radio_code();
 			}
 		}

@@ -237,12 +237,22 @@ int eeprom_check_if_radio_code_exists(const uint8_t *radio_code)
 	return ret;
 }
 
+//------------------------------------------------------------------------------
+bool eeprom_check_if_radio_code_id_exists(uint8_t new_code_id)
+{
+	// Check if given ID is already stored
+	if (eeprom_data_get_current()->radio_configs[new_code_id].id == new_code_id)
+	{
+		printf("eeprom - A radio_code id:%d already exists.\r\n", new_code_id);
+		return true;
+	}
+	return false;
+}
 
 //------------------------------------------------------------------------------
 bool eeprom_store_new_radio_code(const uint8_t *new_code,
 								const uint8_t new_code_len,
-								uint8_t new_code_id,
-								bool fail_if_code_id_exists)
+								uint8_t new_code_id)
 {
 	bool ret = false;
 
@@ -258,16 +268,6 @@ bool eeprom_store_new_radio_code(const uint8_t *new_code,
 	{
 		printf("eeprom - New radio code not stored: invalid new_code_id:%d\r\n", new_code_id);
 		return ret;
-	}
-
-	if (fail_if_code_id_exists)
-	{
-		// Check if given ID is already stored
-		if (eeprom_data_get_current()->radio_configs[new_code_id].id == new_code_id)
-		{
-			printf("eeprom - There is already a radio_code id:%d registered. Storing stopped!\r\n", new_code_id);
-			return ret;
-		}
 	}
 
 	// Store a new code under a given ID

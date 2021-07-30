@@ -23,7 +23,6 @@ static KeypadButtonPressed current_radio_code[RADIO_CODE_SIZE] = {BUTTON_NONE};
 static KeypadButtonPressed current_radio_code_id_button = BUTTON_NONE;
 static uint8_t current_radio_code_idx = 0;
 
-
 //------------------------------------------------------------------------------
 static void clear_radio_code()
 {
@@ -112,21 +111,37 @@ void state_programming(SmCtx *sm)
 				last_button_pressed_timestamp = timestamp_ms;
 			}
 
-			else if (sm->last_pressed_btn == BUTTON_M)
+			else if (sm->last_pressed_btn == BUTTON_M || sm->last_pressed_btn == BUTTON_ARROW_UP)
 			{
 				// Check if provided code is full and valid
 				if (verify_radio_code(current_radio_code, current_radio_code_idx))
 				{
 					printf("programming - verify_radio_code success\r\n");
-					// Try to store a new code
-					if (eeprom_store_new_radio_code(current_radio_code, sizeof(current_radio_code), button_id_to_radio_config_id(current_radio_code_id_button), true))
+					// Check if new code already exists, if so, let's fail
+					if (eeprom_check_if_radio_code_exists(current_radio_code) == -1)
 					{
 						radio_msg msg;
 						msg.msg_type = MSG_CODE_PROGRAM_REQ;
-						memcpy(&(msg.radio_cfg), &(eeprom_data_get_current()->radio_configs[button_id_to_radio_config_id(current_radio_code_id_button)]), sizeof(msg.radio_cfg));
+						msg.radio_cfg.id = button_id_to_radio_config_id(current_radio_code_id_button);
+						memcpy(msg.radio_cfg.code, current_radio_code, sizeof(msg.radio_cfg.code));
+
+						/**
+						 * @note If save was done by BUTTON_M, you have to check if code id already exist before sending message.
+						 * If you want to skip this check run storing by pressing BUTTON_ARROW_UP
+						 */
+						if (sm->last_pressed_btn == BUTTON_M)
+						{
+							if (eeprom_check_if_radio_code_id_exists(msg.radio_cfg.id))
+							{
+								printf("eeprom - There is already a radio_code id:%lu registered. Stopping registering a new one!\r\n", msg.radio_cfg.id);
+								led_toogle_loop(LED_RED, k_led_toogle_time_ms, 4);
+								goto exit;
+							}
+						}
+
 						printf("programming - Sending a new radio msg: MSG_CODE_PROGRAM_REQ...\r\n");
 						radio_send_msg(&msg);
-						// Wait for a response from node
+						// Wait for a response from the NODE
 						const uint32_t start_ms = HAL_GetTick();
 						const uint32_t timeout_ms = k_wait_for_response_from_node_timeout_ms;
 						bool response_received = false;
@@ -142,27 +157,39 @@ void state_programming(SmCtx *sm)
 								}
 							}
 						}
-
+						// Any response from the NODE received
 						if (response_received)
 						{
-							printf("programming - Radio response MSG_CODE_PROGRAM_RES successfully received\r\n");
-							led_toogle_loop(LED_GREEN, k_led_toogle_time_ms, 3);
+							printf("programming - Radio response MSG_CODE_PROGRAM_RES successfully received, storing new code!\r\n");
+							if (eeprom_store_new_radio_code(current_radio_code, sizeof(current_radio_code), button_id_to_radio_config_id(current_radio_code_id_button)))
+							{
+								printf("programming - eeprom_store_new_radio_code success!\r\n");
+								led_toogle_loop(LED_GREEN, k_led_toogle_time_ms, 3);
+							}
+							else
+							{
+								printf("programming - eeprom_store_new_radio_code failed!\r\n");
+								led_toogle_loop(LED_RED, k_led_toogle_time_ms, 4);
+							}
 						}
 						else
 						{
-							printf("programming- No Radio response MSG_CODE_PROGRAM received during timeout\r\n");
+							printf("programming- No Radio response MSG_CODE_PROGRAM_RES received during timeout\r\n");
 							led_toogle_loop(LED_RED, k_led_toogle_time_ms, 3);
 						}
 					}
 					else
 					{
-						printf("programming - eeprom_store_new_radio_code failed!\r\n");
+						printf("programming- This radio code already exists! Cannot store it!\r\n");
+						led_toogle_loop(LED_RED, k_led_toogle_time_ms, 5);
 					}
 				}
 				else
 				{
 					printf("programming - verify_radio_code failed!\r\n");
+					led_toogle_loop(LED_RED, k_led_toogle_time_ms, 2);
 				}
+exit:
 				// Clear last provided radio code
 				clear_radio_code();
 				sm->current_state = Processing;

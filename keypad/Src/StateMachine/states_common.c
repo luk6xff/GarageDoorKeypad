@@ -10,6 +10,12 @@
 #include "../KEYPAD_3x5/keypad3x5.h"
 #include <stdio.h>
 
+
+
+//------------------------------------------------------------------------------
+// Clean all radio codes hidden option. You have to press the following combination of buttons: [M ^ M ^]
+static const uint8_t k_clear_radio_codes[RADIO_CODE_SIZE] = {BUTTON_M, BUTTON_ARROW_UP, BUTTON_M, BUTTON_ARROW_UP};
+
 //------------------------------------------------------------------------------
 bool verify_radio_code(const uint8_t *radio_code, const uint8_t radio_code_size)
 {
@@ -38,4 +44,19 @@ bool verify_radio_code(const uint8_t *radio_code, const uint8_t radio_code_size)
 		ret = false;
 	}
 	return ret;
+}
+
+//------------------------------------------------------------------------------
+void verify_and_clear_radio_codes(const uint8_t *radio_code, const uint8_t radio_code_size)
+{
+	if (radio_code && radio_code_size == RADIO_CODE_SIZE)
+	{
+		if (memcmp(radio_code, k_clear_radio_codes, RADIO_CODE_SIZE) == 0)
+		{
+			printf("Clear radio codes code applied!\r\n");
+			printf("Clearing radio codes...\r\n");
+			memset(eeprom_data_get_current()->radio_configs, 0xFF, sizeof(eeprom_data_get_current()->radio_configs));
+			eeprom_data_store(eeprom_data_get_current());
+		}
+	}
 }

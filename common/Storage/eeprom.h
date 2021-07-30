@@ -49,9 +49,9 @@ void eeprom_data_print_current();
  * @returns radio_config code.id if exists, -1 otherwise;
  */
 int eeprom_check_if_radio_code_exists(const uint8_t *radio_code);
+bool eeprom_check_if_radio_code_id_exists(uint8_t new_code_id);
 bool eeprom_store_new_radio_code(const uint8_t *new_code,
                                     const uint8_t new_code_len,
-									uint8_t new_code_id,
-                                    bool fail_if_code_id_exists);
+									uint8_t new_code_id);
 
 #endif /* EEPROM_H_ */
