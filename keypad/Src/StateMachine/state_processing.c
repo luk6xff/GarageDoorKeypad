@@ -15,6 +15,9 @@
 
 
 //------------------------------------------------------------------------------
+// Go to sleep counter
+static const uint32_t k_go_to_sleep_timeout_ms = 20000;//3000;//20000; // 20[s]
+static uint32_t go_to_sleep_counter_start_ms = 0;
 
 // Last button pressed timestamp
 static uint32_t last_button_pressed_timestamp = 0;
@@ -35,8 +38,23 @@ static void clear_radio_code()
 //------------------------------------------------------------------------------
 void state_processing(SmCtx *sm)
 {
-	if (sm->last_pressed_btn != BUTTON_NONE)
+	if (sm->last_pressed_btn == BUTTON_NONE)
 	{
+		if (go_to_sleep_counter_start_ms == 0)
+		{
+			go_to_sleep_counter_start_ms = HAL_GetTick();
+		}
+
+		if ((HAL_GetTick() - go_to_sleep_counter_start_ms) > k_go_to_sleep_timeout_ms)
+		{
+			sm->current_state = Sleeping;
+			printf("< sleeping >\r\n");
+		}
+	}
+	else  // if (sm->last_pressed_btn != BUTTON_NONE)
+	{
+		// Clear go to sleep timer
+		go_to_sleep_counter_start_ms = 0;
 		// Blink LED if valid button pressed
 		led_toogle(LED_GREEN, 20);
 
@@ -102,17 +120,14 @@ void state_processing(SmCtx *sm)
 				clear_radio_code();
 			}
 		}
+
+		// If BUTTON_P, go to programming session.
+		if (sm->last_pressed_btn == BUTTON_P)
+		{
+			// Clear last provided radio code
+			clear_radio_code();
+			sm->current_state = Programming;
+			printf("< programming >\r\n");
+		}
 	}
-
-	if (sm->last_pressed_btn == BUTTON_P)
-	{
-		// Clear last provided radio code
-		clear_radio_code();
-		sm->current_state = Programming;
-		printf("< programming >\r\n");
-	}
-
-
-	//sm->current_state = Sleeping;
-	//printf("< sleeping >\r\n");
 }
