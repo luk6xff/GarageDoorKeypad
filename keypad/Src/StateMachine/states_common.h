@@ -12,8 +12,8 @@
 #include <stdbool.h>
 
 // COMMON CONST
-static const uint32_t k_wait_for_response_from_node_timeout_ms = 3000;
-static const uint32_t k_led_toogle_time_ms = 300;
+static const uint32_t k_wait_for_response_from_node_timeout_ms = 2000;
+static const uint32_t k_led_toogle_time_ms = 100;
 
 bool verify_radio_code(const uint8_t *radio_code, const uint8_t radio_code_size);
 

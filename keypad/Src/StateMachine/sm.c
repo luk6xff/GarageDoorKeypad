@@ -21,11 +21,6 @@ static SmCtx sm_ctx;
 //------------------------------------------------------------------------------
 void sm_init()
 {
-	// Clear ctx
-	sm_ctx.last_pressed_btn = BUTTON_NONE;
-	sm_ctx.previous_state = Processing;
-	sm_ctx.current_state = Processing;
-
 	/// Init libs
 	// Keypad 3x5
 	keypad3x5_init();
@@ -33,6 +28,12 @@ void sm_init()
 	eeprom_init();
 	// Radio
 	radio_init();
+
+	// Clear SM ctx
+	sm_ctx.last_pressed_btn = BUTTON_NONE;
+	sm_ctx.previous_state = Processing;
+	sm_ctx.current_state = Processing;
+	printf("< processing >\r\n");
 }
 
 //------------------------------------------------------------------------------

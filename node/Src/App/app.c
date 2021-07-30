@@ -19,7 +19,7 @@
 
 //------------------------------------------------------------------------------
 static const uint32_t k_relay_toogle_time_ms = 400;
-static const uint32_t k_led_toogle_time_ms = 200;
+static const uint32_t k_led_toogle_time_ms = 100;
 
 //------------------------------------------------------------------------------
 static void handle_code_program_request(const radio_msg *msg);
@@ -64,6 +64,7 @@ static void handle_code_program_request(const radio_msg *msg)
 			radio_msg res;
 			res.msg_type = MSG_CODE_PROGRAM_RES;
 			radio_send_msg(&res);
+			led_toogle_loop(k_led_toogle_time_ms, 6);
 		}
 	}
 }
@@ -85,8 +86,7 @@ static void handle_code_request(const radio_msg *msg)
 			radio_msg res;
 			res.msg_type = MSG_CODE_RES;
 			radio_send_msg(&res);
-			led_toogle(k_led_toogle_time_ms);
-			led_toogle(k_led_toogle_time_ms);
+			led_toogle_loop(k_led_toogle_time_ms, 3);
 		}
 		else
 		{
@@ -114,7 +114,7 @@ static void app_programming_mode()
 			handle_code_request(&msg);
 		}
 
-		if ((HAL_GetTick() - last_time_ms) > 500)
+		if ((HAL_GetTick() - last_time_ms) > 1000)
 		{
 			last_time_ms = HAL_GetTick();
 			led_toogle(0);

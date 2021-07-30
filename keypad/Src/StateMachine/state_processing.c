@@ -87,14 +87,12 @@ void state_processing(SmCtx *sm)
 					if (response_received)
 					{
 						printf("processing - Radio response MSG_CODE_RES successfully received\r\n");
-						led_toogle(LED_GREEN, k_led_toogle_time_ms);
-						led_toogle(LED_GREEN, k_led_toogle_time_ms);
+						led_toogle_loop(LED_GREEN, k_led_toogle_time_ms, 3);
 					}
 					else
 					{
 						printf("processing - No Radio MSG_CODE_RES response received during timeout\r\n");
-						led_toogle(LED_RED, k_led_toogle_time_ms);
-						led_toogle(LED_RED, k_led_toogle_time_ms);
+						led_toogle_loop(LED_RED, k_led_toogle_time_ms, 3);
 					}
 				}
 			}
