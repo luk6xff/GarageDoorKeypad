@@ -39,10 +39,13 @@ void state_processing(SmCtx *sm)
 {
 	if (sm->last_pressed_btn != BUTTON_NONE)
 	{
+		// Blink LED if valid button pressed
+		led_toogle(LED_GREEN, 20);
+
 		const uint32_t timestamp_ms = HAL_GetTick();
 		if (last_button_pressed_timestamp > 0 && (timestamp_ms - last_button_pressed_timestamp) > k_max_time_between_consecutive_btns_ms)
 		{
-			printf("processing - RADIO code timeout expired-> timestamp_ms:%d, last_button_pressed_timestamp:%d\r\n", timestamp_ms, last_button_pressed_timestamp);
+			printf("processing - RADIO code timeout expired-> timestamp_ms:%lu, last_button_pressed_timestamp:%lu\r\n", timestamp_ms, last_button_pressed_timestamp);
 			// Clear last provided radio code
 			clear_radio_code();
 		}
@@ -72,7 +75,7 @@ void state_processing(SmCtx *sm)
 					{
 						if (radio_read_msg(&msg))
 						{
-							printf("processing - Radio response received! MSG_TYPE:%d\r\n", msg.msg_type);
+							printf("processing - Radio response received! MSG_TYPE:%lu\r\n", msg.msg_type);
 							if (msg.msg_type == MSG_CODE_RES)
 							{
 								response_received = true;
@@ -86,12 +89,10 @@ void state_processing(SmCtx *sm)
 						printf("processing - Radio response MSG_CODE_RES successfully received\r\n");
 						led_toogle(LED_GREEN, k_led_toogle_time_ms);
 						led_toogle(LED_GREEN, k_led_toogle_time_ms);
-						led_toogle(LED_GREEN, k_led_toogle_time_ms);
 					}
 					else
 					{
 						printf("processing - No Radio MSG_CODE_RES response received during timeout\r\n");
-						led_toogle(LED_RED, k_led_toogle_time_ms);
 						led_toogle(LED_RED, k_led_toogle_time_ms);
 						led_toogle(LED_RED, k_led_toogle_time_ms);
 					}
@@ -112,4 +113,8 @@ void state_processing(SmCtx *sm)
 		sm->current_state = Programming;
 		printf("< programming >\r\n");
 	}
+
+
+	//sm->current_state = Sleeping;
+	//printf("< sleeping >\r\n");
 }

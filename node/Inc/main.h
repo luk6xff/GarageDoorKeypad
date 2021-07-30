@@ -79,8 +79,6 @@ void Error_Handler(void);
 #define TR2_GPIO_Port GPIOC
 #define LED_RED_Pin GPIO_PIN_10
 #define LED_RED_GPIO_Port GPIOA
-#define LED_GREEN_Pin GPIO_PIN_11
-#define LED_GREEN_GPIO_Port GPIOA
 #define AT24Cx_WP_Pin GPIO_PIN_12
 #define AT24Cx_WP_GPIO_Port GPIOA
 #define AT24Cx_SCL_Pin GPIO_PIN_6

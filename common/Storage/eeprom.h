@@ -34,7 +34,7 @@ typedef struct __attribute__((packed, aligned(1)))
 
 void eeprom_init();
 
-eeprom_data * const eeprom_data_get_defaults();
+const eeprom_data * const eeprom_data_get_defaults();
 eeprom_data * const eeprom_data_get_current();
 
 bool eeprom_data_store(const eeprom_data* data);

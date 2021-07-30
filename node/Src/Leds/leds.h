@@ -10,16 +10,10 @@
 
 #include <stdint.h>
 
-typedef enum
-{
-	LED_GREEN,
-	LED_RED
-} Leds;
+void led_enable();
 
-void led_enable(Leds led);
+void led_disable();
 
-void led_disable(Leds led);
-
-void led_toogle(Leds led, uint32_t toogle_time_ms);
+void led_toogle(uint32_t toogle_time_ms);
 
 #endif /* LEDS_H_ */

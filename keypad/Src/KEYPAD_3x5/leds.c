@@ -9,12 +9,8 @@
 
 #include "main.h"
 
-//extern UART_HandleTypeDef huart1;
-//const uint8_t green_led[] = {"GREEN_LED\r\n"};
-//const uint8_t red_led[] = {"RED_LED\r\n"};
-//HAL_UART_Transmit(&huart1, green_led, sizeof(green_led), 100);
 
-
+//------------------------------------------------------------------------------
 void led_enable(Leds led)
 {
 	if (led == LED_GREEN)
@@ -27,6 +23,7 @@ void led_enable(Leds led)
 	}
 }
 
+//------------------------------------------------------------------------------
 void led_disable(Leds led)
 {
 	if (led == LED_GREEN)
@@ -39,6 +36,14 @@ void led_disable(Leds led)
 	}
 }
 
+//------------------------------------------------------------------------------
+void led_disable_all()
+{
+	HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(LED_RED_GPIO_Port, LED_RED_Pin, GPIO_PIN_RESET);
+}
+
+//------------------------------------------------------------------------------
 void led_toogle(Leds led, uint32_t toogle_time_ms)
 {
 
@@ -54,6 +59,7 @@ void led_toogle(Leds led, uint32_t toogle_time_ms)
 		HAL_Delay(toogle_time_ms);
 		HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
 	}
-
-
 }
+
+//------------------------------------------------------------------------------
+

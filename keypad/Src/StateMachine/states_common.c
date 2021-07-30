@@ -30,7 +30,7 @@ bool verify_radio_code(const uint8_t *radio_code, const uint8_t radio_code_size)
 				ret = false;
 			}
 		}
-		printf("RADIO code provided is valid: [0]:%d, [1]:%d, [2]:%d, [3]:%d\r\n", \
+		printf("RADIO code provided: [0]:0x%x, [1]:0x%x, [2]:0x%x, [3]:0x%x\r\n", \
 				radio_code[0], radio_code[1], radio_code[2], radio_code[3]);
 	}
 	else

@@ -20,6 +20,8 @@ void led_enable(Leds led);
 
 void led_disable(Leds led);
 
+void led_disable_all();
+
 void led_toogle(Leds led, uint32_t toogle_time_ms);
 
 #endif /* KEYPAD_3X5_LEDS_H_ */

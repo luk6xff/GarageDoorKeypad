@@ -243,8 +243,6 @@ static KeypadButtonInputs read_input_state_from_EFGH(void)
  */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-	KeypadInputsPressed current_inputs_pressed = { BUTTON_UNKNOWN_ERROR, BUTTON_UNKNOWN_ERROR };
-
 	if (!keypad_button_pressed)
 	{
 		keypad_last_inputs_state.abcd_input = read_input_state_from_ABCD();
@@ -305,7 +303,7 @@ KeypadButtonPressed keypad_get_last_state_if_changed()
 		printf("ABCD_INPUT:0x%x, EFGH_INPUT:0x%x, SUM:%d,0x%x, %s\r\n",
 				keypad_last_inputs_state.abcd_input, keypad_last_inputs_state.efgh_input,
 				button_pressed, button_pressed, decode_keyboard_button(button_pressed));
-
+		//printf("%s pressed\r\n", decode_keyboard_button(button_pressed));
 		keypad_button_read = false;
 	}
 	return button_pressed;
