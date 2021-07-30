@@ -13,8 +13,12 @@
 #include "Storage/eeprom.h"
 #include "Radio/radio.h"
 #include "../Leds/leds.h"
+#include "../Relay/relay.h"
 #include <stdio.h>
 #include <string.h>
+
+//------------------------------------------------------------------------------
+static const uint32_t k_relay_toogle_time_ms = 200;
 
 //------------------------------------------------------------------------------
 static void app_programming_mode()
@@ -63,10 +67,23 @@ static void app_normal_mode()
 			printf("New radio msg received, MSG_TYPE:%d\r\n", msg.msg_type);
 			if (msg.msg_type == MSG_CODE_REQ)
 			{
-				// LU_TODO Check if radio_code exists in the eeprom
-				msg.msg_type = MSG_CODE_RES;
-				printf("Sending a MSG_CODE_RES to keypad\r\n");
-				radio_send_msg(&msg);
+				// Check if radio_code exists in the eeprom
+				const int radio_code_id = eeprom_check_if_radio_code_exists(msg.radio_cfg.code);
+				if (radio_code_id != -1)
+				{
+					printf("eeprom_check_if_radio_code_exists - true, id:%d\r\n", radio_code_id);
+					// Toogle relay
+					relay_toogle(k_relay_toogle_time_ms);
+					// Send a successful response
+					printf("Sending a MSG_CODE_RES to keypad\r\n");
+					msg.msg_type = MSG_CODE_RES;
+					radio_send_msg(&msg);
+				}
+				else
+				{
+					printf("eeprom_check_if_radio_code_exists - false\r\n");
+				}
+
 			}
 		}
 	}

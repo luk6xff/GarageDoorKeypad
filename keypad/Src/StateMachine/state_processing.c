@@ -64,8 +64,9 @@ void state_processing(SmCtx *sm)
 					memcpy(&(msg.radio_cfg), &(eeprom_data_get_current()->radio_configs[radio_code_id]), sizeof(msg.radio_cfg));
 					printf("processing - Sending a new radio msg: MSG_CODE_REQ...\r\n");
 					radio_send_msg(&msg);
+					// Wait for a response from node
 					const uint32_t start_ms = HAL_GetTick();
-					const uint32_t timeout_ms = 2000;
+					const uint32_t timeout_ms = k_wait_for_response_from_node_timeout_ms;
 					bool response_received = false;
 					while ((HAL_GetTick() - start_ms) < timeout_ms)
 					{
@@ -79,19 +80,20 @@ void state_processing(SmCtx *sm)
 							}
 						}
 					}
+
 					if (response_received)
 					{
 						printf("processing - Radio response MSG_CODE_RES successfully received\r\n");
-						led_toogle(LED_GREEN, 200);
-						led_toogle(LED_GREEN, 200);
-						led_toogle(LED_GREEN, 200);
+						led_toogle(LED_GREEN, k_led_toogle_time_ms);
+						led_toogle(LED_GREEN, k_led_toogle_time_ms);
+						led_toogle(LED_GREEN, k_led_toogle_time_ms);
 					}
 					else
 					{
 						printf("processing - No Radio MSG_CODE_RES response received during timeout\r\n");
-						led_toogle(LED_RED, 200);
-						led_toogle(LED_RED, 200);
-						led_toogle(LED_RED, 200);
+						led_toogle(LED_RED, k_led_toogle_time_ms);
+						led_toogle(LED_RED, k_led_toogle_time_ms);
+						led_toogle(LED_RED, k_led_toogle_time_ms);
 					}
 				}
 			}
