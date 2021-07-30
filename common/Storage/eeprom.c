@@ -172,10 +172,13 @@ int eeprom_check_if_radio_code_exists(const uint8_t *radio_code)
 //------------------------------------------------------------------------------
 bool eeprom_store_new_radio_code(const uint8_t *new_code,
 								const uint8_t new_code_len,
-								uint8_t new_code_id)
+								uint8_t new_code_id,
+								bool fail_if_code_id_exists)
 {
 	bool ret = false;
+
 	printf("programming - eeprom_store_new_radio_code\r\n");
+
 	if (!new_code || new_code_len != RADIO_CODE_SIZE)
 	{
 		printf("eeprom - New radio code not stored: invalid new code len:%d\r\n", new_code_len);
@@ -188,24 +191,24 @@ bool eeprom_store_new_radio_code(const uint8_t *new_code,
 		return ret;
 	}
 
-	// Check if given ID is already stored
-	if (eeprom_data_get_current()->radio_configs[new_code_id].id == new_code_id)
+	if (fail_if_code_id_exists)
 	{
-		printf("eeprom - There is already a radio_code id:%d registered. Press ArrowUP then number again\r\n", new_code_id);
-	}
-	else
-	{
-		// Store a new code under a given ID
-		eeprom_data_get_current()->radio_configs[new_code_id].id = new_code_id;
-		memcpy(eeprom_data_get_current()->radio_configs[new_code_id].code, new_code, new_code_len);
-		printf("eeprom - A new radio code: [0]=0x%x,[1]=0x%x,[2]=0x%x,[3]=0x%x stored succesfully! with ID:%d\r\n",
-				new_code[0], new_code[1], new_code[2], new_code[3],new_code_id);
-		// Store to eeprom
-		eeprom_data_store(eeprom_data_get_current());
-		ret = true;
+		// Check if given ID is already stored
+		if (eeprom_data_get_current()->radio_configs[new_code_id].id == new_code_id)
+		{
+			printf("eeprom - There is already a radio_code id:%d registered. Storing stopped!\r\n", new_code_id);
+			return ret;
+		}
 	}
 
-	printf("eeprom - ret:%d\r\n", ret);
+	// Store a new code under a given ID
+	eeprom_data_get_current()->radio_configs[new_code_id].id = new_code_id;
+	memcpy(eeprom_data_get_current()->radio_configs[new_code_id].code, new_code, new_code_len);
+	printf("eeprom - A new radio code: [0]=0x%x,[1]=0x%x,[2]=0x%x,[3]=0x%x stored succesfully! with ID:%d\r\n",
+			new_code[0], new_code[1], new_code[2], new_code[3],new_code_id);
+	// Store to eeprom
+	eeprom_data_store(eeprom_data_get_current());
+	ret = true;
 
 	return ret;
 }

@@ -110,15 +110,15 @@ void state_programming(SmCtx *sm)
 				if (verify_radio_code(current_radio_code, current_radio_code_idx))
 				{
 					printf("programming - verify_radio_code success\r\n");
-					// Try to store new code
-					if (eeprom_store_new_radio_code(current_radio_code, sizeof(current_radio_code), button_id_to_radio_config_id(current_radio_code_id_button)))
+					// Try to store a new code
+					if (eeprom_store_new_radio_code(current_radio_code, sizeof(current_radio_code), button_id_to_radio_config_id(current_radio_code_id_button), true))
 					{
-						// LU_TODO Send frame to a NODE and wait for response
 						radio_msg msg;
 						msg.msg_type = MSG_CODE_PROGRAM_REQ;
 						memcpy(&(msg.radio_cfg), &(eeprom_data_get_current()->radio_configs[button_id_to_radio_config_id(current_radio_code_id_button)]), sizeof(msg.radio_cfg));
 						printf("programming - Sending a new radio msg: MSG_CODE_PROGRAM_REQ...\r\n");
 						radio_send_msg(&msg);
+						// Wait 3s for response from the node
 						const uint32_t start_ms = HAL_GetTick();
 						const uint32_t timeout_ms = 3000;
 						bool response_received = false;
