@@ -89,6 +89,11 @@
 			<locationURI>$%7BPARENT-3-PROJECT_LOC%7D/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.2/Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_i2c_ex.c</locationURI>
 		</link>
 		<link>
+			<name>Drivers/STM32F0xx_HAL_Driver/stm32f0xx_hal_iwdg.c</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-3-PROJECT_LOC%7D/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.2/Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_iwdg.c</locationURI>
+		</link>
+		<link>
 			<name>Drivers/STM32F0xx_HAL_Driver/stm32f0xx_hal_pwr.c</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-3-PROJECT_LOC%7D/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.2/Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_pwr.c</locationURI>

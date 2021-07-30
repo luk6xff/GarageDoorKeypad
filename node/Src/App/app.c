@@ -18,6 +18,9 @@
 #include <string.h>
 
 //------------------------------------------------------------------------------
+extern IWDG_HandleTypeDef hiwdg;
+
+//------------------------------------------------------------------------------
 static const uint32_t k_relay_toogle_time_ms = 400;
 static const uint32_t k_led_toogle_time_ms = 100;
 
@@ -123,6 +126,9 @@ static void app_programming_mode()
 			last_time_ms = HAL_GetTick();
 			led_toogle(0);
 		}
+
+		// Kick the watchdog
+		HAL_IWDG_Refresh(&hiwdg);
 	}
 }
 
@@ -141,6 +147,8 @@ static void app_normal_mode()
 			// Handle only code requests
 			handle_code_request(&msg);
 		}
+		// Kick the watchdog
+		HAL_IWDG_Refresh(&hiwdg);
 	}
 }
 

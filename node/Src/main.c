@@ -24,7 +24,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "App/app.h"
-#include "utils.h"
+#include "Utils/utils.h"
 #include <stdio.h>
 /* USER CODE END Includes */
 
@@ -45,6 +45,8 @@
 
 /* Private variables ---------------------------------------------------------*/
 I2C_HandleTypeDef hi2c2;
+
+IWDG_HandleTypeDef hiwdg;
 
 SPI_HandleTypeDef hspi2;
 
@@ -78,6 +80,7 @@ static void MX_I2C2_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_SPI2_Init(void);
 static void MX_TIM3_Init(void);
+static void MX_IWDG_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -110,7 +113,21 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
+  /**
+   * @brief IWDG computation
+   * 		Based on: https://controllerstech.com/iwdg-and-wwdg-in-stm32/
+   *
+   * 	t_iwdg = t_lsi x 4 x 2^PR x (RL+1)
+   * 	where: t_lsi = 1 / 32000 (31.25us)
+   *
+   * 	I need: t_iwdg = 10[s] = 10000[ms]
+   * 	Prescaler = 128 so PR = 5
+   *	RL = ((t_iwdg x 32000) / ((4 x 2^PR) x 1000)) - 1
+   *	RL = ((10000 x 32000) / ((4 x 2^5) x 1000)) - 1
+   *	RL = 2500
+   *	IWDG down-counter reload value = 2500
+   *
+   */
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -119,6 +136,7 @@ int main(void)
   MX_USART1_UART_Init();
   MX_SPI2_Init();
   MX_TIM3_Init();
+  MX_IWDG_Init();
   /* USER CODE BEGIN 2 */
   printf("\r\n\r\n\r\n>>> Hello from Garage Door Keypad NODE <<< by luk6xff-2021\r\n");
   // Scan for I2C devices
@@ -133,7 +151,7 @@ int main(void)
   while (1)
   {
 
-	  app_run();
+	app_run();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -153,9 +171,10 @@ void SystemClock_Config(void)
 
   /** Initializes the CPU, AHB and APB busses clocks 
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_LSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+  RCC_OscInitStruct.LSIState = RCC_LSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
@@ -224,6 +243,35 @@ static void MX_I2C2_Init(void)
   /* USER CODE BEGIN I2C2_Init 2 */
 
   /* USER CODE END I2C2_Init 2 */
+
+}
+
+/**
+  * @brief IWDG Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_IWDG_Init(void)
+{
+
+  /* USER CODE BEGIN IWDG_Init 0 */
+
+  /* USER CODE END IWDG_Init 0 */
+
+  /* USER CODE BEGIN IWDG_Init 1 */
+
+  /* USER CODE END IWDG_Init 1 */
+  hiwdg.Instance = IWDG;
+  hiwdg.Init.Prescaler = IWDG_PRESCALER_128;
+  hiwdg.Init.Window = 4095;
+  hiwdg.Init.Reload = 2500;
+  if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN IWDG_Init 2 */
+
+  /* USER CODE END IWDG_Init 2 */
 
 }
 
