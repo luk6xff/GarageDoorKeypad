@@ -167,6 +167,7 @@ void state_programming(SmCtx *sm)
 						bool response_received = false;
 						while ((HAL_GetTick() - start_ms) < timeout_ms)
 						{
+							kick_watchdog();
 							if (radio_read_msg(&msg))
 							{
 								printf("programming - Radio response received! MSG_TYPE:%lu\r\n", msg.msg_type);

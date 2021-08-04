@@ -10,8 +10,10 @@
 
 #include "sm.h"
 #include "states.h"
+#include "states_common.h"
 #include "Storage/eeprom.h"
 #include "Radio/radio.h"
+#include <stdio.h>
 
 //------------------------------------------------------------------------------
 static SmCtx sm_ctx;
@@ -26,6 +28,8 @@ void sm_init()
 	keypad3x5_init();
 	// Storage
 	eeprom_init();
+	// Watchdog
+	kick_watchdog();
 	// Radio
 	radio_init();
 
@@ -41,6 +45,8 @@ void sm_run(const KeypadButtonPressed button)
 {
 	sm_ctx.previous_state = sm_ctx.current_state;
 	sm_ctx.last_pressed_btn = button;
+
+	kick_watchdog();
 
 	switch (sm_ctx.current_state)
 	{

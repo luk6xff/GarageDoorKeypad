@@ -19,5 +19,6 @@ static const uint32_t k_led_toogle_time_ms = 100;
 bool verify_radio_code(const uint8_t *radio_code, const uint8_t radio_code_size);
 void verify_and_clear_radio_codes(const uint8_t *radio_code, const uint8_t radio_code_size);
 
+void kick_watchdog();
 
 #endif /* STATEMACHINE_STATES_COMMON_H_ */

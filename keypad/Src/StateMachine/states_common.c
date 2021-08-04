@@ -8,9 +8,12 @@
 #include "states_common.h"
 #include "Storage/eeprom.h"
 #include "../KEYPAD_3x5/keypad3x5.h"
+#include "main.h"
 #include <stdio.h>
 
 
+//------------------------------------------------------------------------------
+extern WWDG_HandleTypeDef hwwdg;
 
 //------------------------------------------------------------------------------
 // Clean all radio codes hidden option. You have to press the following combination of buttons: [M ^ M ^]
@@ -60,3 +63,13 @@ void verify_and_clear_radio_codes(const uint8_t *radio_code, const uint8_t radio
 		}
 	}
 }
+
+//------------------------------------------------------------------------------
+void kick_watchdog()
+{
+	/* Refresh watchdog, no more than 2[s] must expire before next refresh */
+	HAL_WWDG_Refresh(&hwwdg);
+}
+
+//------------------------------------------------------------------------------
+
