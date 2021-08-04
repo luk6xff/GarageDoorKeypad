@@ -14,6 +14,9 @@
 #include <stdio.h>
 
 //------------------------------------------------------------------------------
+// Go to sleep counter
+static const uint32_t k_go_to_processing_timeout_ms = 30000; // 30[s]
+static uint32_t go_to_processing_counter_start_ms = 0;
 
 // Last button pressed timestamp
 static uint32_t last_button_pressed_timestamp = 0;
@@ -81,8 +84,26 @@ void state_programming(SmCtx *sm)
 	// In programming state, keep LED_RED light on;
 	led_enable(LED_RED);
 
-	if (sm->last_pressed_btn != BUTTON_NONE)
+	if (sm->last_pressed_btn == BUTTON_NONE)
 	{
+		if (go_to_processing_counter_start_ms == 0)
+		{
+			go_to_processing_counter_start_ms = HAL_GetTick();
+		}
+
+		if ((HAL_GetTick() - go_to_processing_counter_start_ms) > k_go_to_processing_timeout_ms)
+		{
+			go_to_processing_counter_start_ms = 0;
+			clear_radio_code();
+			sm->current_state = Processing;
+			led_disable_all();
+			printf("< processing >\r\n");
+		}
+	}
+	else  // if (sm->last_pressed_btn != BUTTON_NONE)
+	{
+		// Clear go to processing counter
+		go_to_processing_counter_start_ms = 0;
 		// Blink LED if valid button pressed
 		led_toogle(LED_GREEN, 20);
 
@@ -90,10 +111,8 @@ void state_programming(SmCtx *sm)
 		if (last_button_pressed_timestamp > 0 && (timestamp_ms - last_button_pressed_timestamp) > k_max_time_between_consecutive_btns_ms)
 		{
 			printf("programming - RADIO code timeout expired, jump to Processing-> timestamp_ms:%lu, last_button_pressed_timestamp:%lu\r\n", timestamp_ms, last_button_pressed_timestamp);
-			// Clear last provided radio code
 			clear_radio_code();
 			sm->current_state = Processing;
-			// Disable leds
 			led_disable_all();
 			printf("< processing >\r\n");
 		}
@@ -141,6 +160,7 @@ void state_programming(SmCtx *sm)
 
 						printf("programming - Sending a new radio msg: MSG_CODE_PROGRAM_REQ...\r\n");
 						radio_send_msg(&msg);
+						led_toogle_loop(LED_GREEN, k_led_toogle_time_ms, 1);
 						// Wait for a response from the NODE
 						const uint32_t start_ms = HAL_GetTick();
 						const uint32_t timeout_ms = k_wait_for_response_from_node_timeout_ms;

@@ -1,5 +1,6 @@
 #MicroXplorer Configuration settings - do not modify
 File.Version=6
+GPIO.groupedBy=Group By Peripherals
 KeepUserPlacement=false
 Mcu.Family=STM32F0
 Mcu.IP0=I2C2
@@ -218,7 +219,7 @@ ProjectManager.FreePins=true
 ProjectManager.HalAssertFull=false
 ProjectManager.HeapSize=0x200
 ProjectManager.KeepUserCode=true
-ProjectManager.LastFirmware=true
+ProjectManager.LastFirmware=false
 ProjectManager.LibraryCopy=2
 ProjectManager.MainLocation=Src
 ProjectManager.NoMain=false

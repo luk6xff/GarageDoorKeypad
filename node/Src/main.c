@@ -140,7 +140,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   printf("\r\n\r\n\r\n>>> Hello from Garage Door Keypad NODE <<< by luk6xff-2021\r\n");
   // Scan for I2C devices
-  //i2c_scanner();
+  i2c_scanner();
   // App initialization
   app_init();
   /* USER CODE END 2 */

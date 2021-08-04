@@ -16,7 +16,7 @@
 
 //------------------------------------------------------------------------------
 // Go to sleep counter
-static const uint32_t k_go_to_sleep_timeout_ms = 20000;//3000;//20000; // 20[s]
+static const uint32_t k_go_to_sleep_timeout_ms = 3000;//20000; // 20[s]
 static uint32_t go_to_sleep_counter_start_ms = 0;
 
 // Last button pressed timestamp
@@ -47,13 +47,15 @@ void state_processing(SmCtx *sm)
 
 		if ((HAL_GetTick() - go_to_sleep_counter_start_ms) > k_go_to_sleep_timeout_ms)
 		{
+			go_to_sleep_counter_start_ms = 0;
+			clear_radio_code();
 			sm->current_state = Sleeping;
 			printf("< sleeping >\r\n");
 		}
 	}
 	else  // if (sm->last_pressed_btn != BUTTON_NONE)
 	{
-		// Clear go to sleep timer
+		// Clear go to sleeping timer
 		go_to_sleep_counter_start_ms = 0;
 		// Blink LED if valid button pressed
 		led_toogle(LED_GREEN, 20);
@@ -83,6 +85,7 @@ void state_processing(SmCtx *sm)
 					memcpy(&(msg.radio_cfg), &(eeprom_data_get_current()->radio_configs[radio_code_id]), sizeof(msg.radio_cfg));
 					printf("processing - Sending a new radio msg: MSG_CODE_REQ...\r\n");
 					radio_send_msg(&msg);
+					led_toogle_loop(LED_GREEN, k_led_toogle_time_ms, 1);
 					// Wait for a response from node
 					const uint32_t start_ms = HAL_GetTick();
 					const uint32_t timeout_ms = k_wait_for_response_from_node_timeout_ms;
@@ -110,6 +113,11 @@ void state_processing(SmCtx *sm)
 						printf("processing - No Radio MSG_CODE_RES response received during timeout\r\n");
 						led_toogle_loop(LED_RED, k_led_toogle_time_ms, 3);
 					}
+				}
+				else
+				{
+					printf("processing - Non existing radio code provided\r\n");
+					led_toogle_loop(LED_RED, k_led_toogle_time_ms, 3);
 				}
 			}
 

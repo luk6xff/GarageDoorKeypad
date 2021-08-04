@@ -8,36 +8,43 @@
 #include "state_sleeping.h"
 #include "main.h"
 #include "Radio/radio.h"
+#include <stdio.h>
 
+
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
 void state_sleeping(SmCtx *sm)
 {
-	// Disable Radio
+	/* Disable Radio */
 	radio_deinit();
 
-	/*#### Disable all used wakeup sources: WKUP pin ###########################*/
-	HAL_PWR_DisableWakeUpPin(PWR_WAKEUP_PIN1);
-	HAL_PWR_DisableWakeUpPin(PWR_WAKEUP_PIN2);
-
-	__HAL_RCC_GPIOC_CLK_DISABLE();
-	__HAL_RCC_GPIOF_CLK_DISABLE();
-	__HAL_RCC_GPIOA_CLK_DISABLE();
+	/* Disable Unused GPIOs */
 	__HAL_RCC_GPIOB_CLK_DISABLE();
+	__HAL_RCC_GPIOC_CLK_DISABLE();
 	__HAL_RCC_GPIOD_CLK_DISABLE();
+	__HAL_RCC_GPIOF_CLK_DISABLE();
 
-	/*#### Clear all related wakeup flags ######################################*/
+	/* Disable SysTick. */
+	HAL_SuspendTick();
+	/* Request to enter STOP mode */
+	HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+
+	/* WakeUp happens here */
+	/* Enable SysTick. */
+	HAL_ResumeTick();
+
 	/* Clear PWR wake up Flag */
 	__HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU);
 
-	/* Enable WKUP pin */
-	//HAL_PWR_EnableWakeUpPin(PWR_WAKEUP_PIN1);
-	//HAL_PWR_EnableWakeUpPin(PWR_WAKEUP_PIN2);
+	/* ReInit GPIOs */
+	__HAL_RCC_GPIOB_CLK_ENABLE();
+	__HAL_RCC_GPIOC_CLK_ENABLE();
+	__HAL_RCC_GPIOD_CLK_ENABLE();
+	__HAL_RCC_GPIOF_CLK_ENABLE();
 
-	/* Enable Ultra low power mode */
-	//HAL_PWREx_EnableUltraLowPower();
-
-	/* Enable the fast wake up from Ultra low power mode */
-	//HAL_PWREx_EnableFastWakeUp();
-
-	/* Request to enter STANDBY mode */
-	HAL_PWR_EnterSTANDBYMode();
+	/* Go to processing state */
+	sm->current_state = Processing;
+	printf("< processing >\r\n");
 }
+
