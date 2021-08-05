@@ -125,7 +125,7 @@ int main(void)
   MX_WWDG_Init();
   /* USER CODE BEGIN 2 */
   printf("\r\n\r\n\r\n>>> Hello from Garage Door KEYPAD <<< by luk6xff-2021\r\n");
-
+  printf(">>> Build TIME:%s, DATE:%s\r\n", __TIME__, __DATE__);
   // State machine initialization
   sm_init();
   /* USER CODE END 2 */
