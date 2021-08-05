@@ -15,7 +15,7 @@
 
 //------------------------------------------------------------------------------
 // Go to sleep counter
-static const uint32_t k_go_to_processing_timeout_ms = 30000; // 30[s]
+static const uint32_t k_go_to_processing_timeout_ms = 20000; // 20[s]
 static uint32_t go_to_processing_counter_start_ms = 0;
 
 // Last button pressed timestamp

@@ -80,14 +80,13 @@ bool radio_read_data(const uint16_t recv_dev_id, uint8_t *data, const uint32_t d
     {
         if (nrf24l01_read((uint8_t)recv_dev_id, data, data_len) > 0)
         {
-        	printf("nrf24l01 data received succesfully!\r\n");
+        	printf("nrf24l01 data received successfully!\r\n");
         	msg_received = true;
         }
     }
 
 	return msg_received;
 }
-
 
 //------------------------------------------------------------------------------
 bool radio_send_msg(const radio_msg *msg)
