@@ -89,36 +89,14 @@ VCC
 Wire Wire Line
 	6200 900  6200 1000
 Wire Wire Line
-	6200 1000 6200 1200
-Wire Wire Line
-	6200 1200 6200 1500
-Wire Wire Line
-	6200 1500 6200 1800
-Wire Wire Line
-	6200 1800 6200 2100
-Wire Wire Line
-	6200 2100 6200 2300
-Wire Wire Line
 	6200 2300 6200 2400
 Wire Wire Line
 	6200 2400 6200 2600
 Wire Wire Line
 	6200 2600 6200 2700
 Wire Wire Line
-	6100 1200 6200 1200
-Wire Wire Line
-	6100 1500 6200 1500
-Wire Wire Line
-	6100 1800 6200 1800
-Wire Wire Line
-	6100 2100 6200 2100
-Wire Wire Line
 	6600 1000 6200 1000
-Connection ~ 6200 2100
 Connection ~ 6200 2300
-Connection ~ 6200 1800
-Connection ~ 6200 1500
-Connection ~ 6200 1200
 Connection ~ 6200 1000
 Connection ~ 6200 2400
 Connection ~ 6200 2600
@@ -288,13 +266,7 @@ Connection ~ 8000 4700
 Wire Wire Line
 	7200 5400 7300 5400
 Wire Wire Line
-	5700 2100 5600 2000
-Wire Wire Line
-	5700 1600 4900 1600
-Wire Wire Line
 	5000 2000 5000 1500
-Wire Wire Line
-	5700 1500 5000 1500
 Connection ~ 5000 1500
 Wire Wire Line
 	3700 4500 4400 4500
@@ -353,17 +325,6 @@ Text Label 8100 2500 0    70   ~ 0
 SWO
 Wire Wire Line
 	3500 6300 3700 6300
-$Comp
-L zamekKodowy_nadajnik-eagle-import:STM32F10XRXT6 U1
-U 1 1 F9562130
-P 5200 2300
-F 0 "U1" H 5000 2500 42  0000 L BNN
-F 1 "STM32F10XRXT6" H 5000 2000 42  0000 L BNN
-F 2 "zamekKodowy_nadajnik:TQFP64" H 5200 2300 50  0001 C CNN
-F 3 "" H 5200 2300 50  0001 C CNN
-	1    5200 2300
-	0    1    1    0   
-$EndComp
 $Comp
 L zamekKodowy_nadajnik-eagle-import:STM32F10XRXT6 U1
 U 2 1 F956213C
@@ -660,50 +621,6 @@ F 2 "zamekKodowy_nadajnik:R0603" H 7800 4900 50  0001 C CNN
 F 3 "" H 7800 4900 50  0001 C CNN
 	1    7800 4900
 	0    1    1    0   
-$EndComp
-$Comp
-L zamekKodowy_nadajnik-eagle-import:R-EU_R0603 R7
-U 1 1 F9EF3F38
-P 5900 1200
-F 0 "R7" H 5750 1259 59  0000 L BNN
-F 1 "100k" H 5750 1070 59  0000 L BNN
-F 2 "zamekKodowy_nadajnik:R0603" H 5900 1200 50  0001 C CNN
-F 3 "" H 5900 1200 50  0001 C CNN
-	1    5900 1200
-	-1   0    0    1   
-$EndComp
-$Comp
-L zamekKodowy_nadajnik-eagle-import:R-EU_R0603 R8
-U 1 1 D43E6860
-P 5900 1500
-F 0 "R8" H 5750 1559 59  0000 L BNN
-F 1 "100k" H 5750 1370 59  0000 L BNN
-F 2 "zamekKodowy_nadajnik:R0603" H 5900 1500 50  0001 C CNN
-F 3 "" H 5900 1500 50  0001 C CNN
-	1    5900 1500
-	-1   0    0    1   
-$EndComp
-$Comp
-L zamekKodowy_nadajnik-eagle-import:R-EU_R0603 R9
-U 1 1 C80C737D
-P 5900 1800
-F 0 "R9" H 5750 1859 59  0000 L BNN
-F 1 "100k" H 5750 1670 59  0000 L BNN
-F 2 "zamekKodowy_nadajnik:R0603" H 5900 1800 50  0001 C CNN
-F 3 "" H 5900 1800 50  0001 C CNN
-	1    5900 1800
-	-1   0    0    1   
-$EndComp
-$Comp
-L zamekKodowy_nadajnik-eagle-import:R-EU_R0603 R10
-U 1 1 9FE8675D
-P 5900 2100
-F 0 "R10" H 5750 2159 59  0000 L BNN
-F 1 "100k" H 5750 1970 59  0000 L BNN
-F 2 "zamekKodowy_nadajnik:R0603" H 5900 2100 50  0001 C CNN
-F 3 "" H 5900 2100 50  0001 C CNN
-	1    5900 2100
-	-1   0    0    1   
 $EndComp
 $Comp
 L zamekKodowy_nadajnik-eagle-import:MA05-1 SWD1
@@ -1229,17 +1146,9 @@ Wire Wire Line
 	5100 450  5100 1200
 Connection ~ 5100 1200
 Wire Wire Line
-	5100 1200 5700 1200
-Wire Wire Line
 	5100 1200 5100 2000
 Wire Wire Line
 	4900 1600 4900 2000
-Wire Wire Line
-	5700 1600 5700 1800
-Wire Wire Line
-	5600 1700 4800 1700
-Wire Wire Line
-	5600 1700 5600 2000
 Wire Wire Line
 	4800 1700 4800 2000
 Wire Wire Line
@@ -1408,4 +1317,17 @@ Wire Wire Line
 Connection ~ 5500 950 
 Wire Wire Line
 	4250 950  5500 950 
+$Comp
+L zamekKodowy_nadajnik-eagle-import:STM32F10XRXT6 U1
+U 1 1 F9562130
+P 5200 2300
+F 0 "U1" H 5000 2500 42  0000 L BNN
+F 1 "STM32F10XRXT6" H 5000 2000 42  0000 L BNN
+F 2 "zamekKodowy_nadajnik:TQFP64" H 5200 2300 50  0001 C CNN
+F 3 "" H 5200 2300 50  0001 C CNN
+	1    5200 2300
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	6200 1000 6200 2300
 $EndSCHEMATC

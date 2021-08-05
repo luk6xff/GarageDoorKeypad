@@ -1314,9 +1314,9 @@ Connection ~ 4100 1200
 Wire Wire Line
 	4100 1200 5100 1200
 Text GLabel 4000 1400 0    50   Input ~ 10
-F
-Text GLabel 4000 1550 0    50   Input ~ 10
 G
+Text GLabel 4000 1550 0    50   Input ~ 10
+F
 Text GLabel 4000 1650 0    50   Input ~ 10
 H
 Text GLabel 4000 650  0    50   Input ~ 10
