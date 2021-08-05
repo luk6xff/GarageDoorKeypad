@@ -42,6 +42,8 @@ void state_sleeping(SmCtx *sm)
 	__HAL_RCC_GPIOC_CLK_ENABLE();
 	__HAL_RCC_GPIOD_CLK_ENABLE();
 	__HAL_RCC_GPIOF_CLK_ENABLE();
+	/* Resume radio from the sleep mode */
+	radio_resume();
 
 	/* Go to processing state */
 	sm->current_state = Processing;

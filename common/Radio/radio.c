@@ -47,7 +47,7 @@ void radio_init()
 	// Print all the regs
 	nrf24l01_print_all_regs();
 
-   // Display the (default) setup of the nRF24L01+ chip
+	// Display the (default) setup of the nRF24L01+ chip
 	nrf24l01_print_chip_info();
 }
 
@@ -59,13 +59,22 @@ void radio_deinit()
 }
 
 //------------------------------------------------------------------------------
+void radio_resume()
+{
+	// Enable radio
+	nrf24l01_enable();
+	// Set an RX mode
+	nrf24l01_set_rx_mode();
+}
+
+//------------------------------------------------------------------------------
 bool radio_send_data(const uint16_t recv_dev_id, const uint8_t *data,
                     const uint32_t data_len)
 {
     int ret = nrf24l01_write((uint8_t)recv_dev_id, data, data_len);
     if (ret > 0)
     {
-  	  printf("nrf24l01 data sent succesfully!\r\n");
+    	printf("nrf24l01 data sent successfully!\r\n");
     }
     return ret;
 }

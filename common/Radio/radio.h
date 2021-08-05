@@ -25,6 +25,11 @@ void radio_init();
 void radio_deinit();
 
 /**
+ * @brief Resumes radio from the sleep mode.
+ */
+void radio_resume();
+
+/**
  * @brief Sends data to the node
  */
 bool radio_send_data(const uint16_t recv_dev_id, const uint8_t *data, const uint32_t data_len);
