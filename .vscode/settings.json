@@ -2,6 +2,7 @@
     "files.associations": {
         "*.tpp": "c",
         "*.tcc": "c",
-        "at24c64.h": "c"
+        "at24c64.h": "c",
+        "nrf24l01p-cube.h": "c"
     }
 }

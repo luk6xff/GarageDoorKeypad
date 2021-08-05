@@ -22,13 +22,11 @@ typedef struct
 
 /**
  * @brief Initialize eeprom with STM32 CUBE dependent parameters.
- *
  */
 void at24cxx_cube_init(at24cxx* const dev, at24cxx_cube* const cube_dev, uint8_t i2c_addr_pins);
 
 /**
  * @brief Deinitalize eeprom.
- *
  */
 void at24cxx_cube_deinit(at24cxx* const dev);
 
