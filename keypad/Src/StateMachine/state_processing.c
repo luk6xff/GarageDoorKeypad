@@ -138,5 +138,12 @@ void state_processing(SmCtx *sm)
 			sm->current_state = Programming;
 			printf("< programming >\r\n");
 		}
+		// If BUTTON_ESC, clean all and run again
+		else if (sm->last_pressed_btn == BUTTON_ESC)
+		{
+			// Clear last provided radio code
+			clear_radio_code();
+			led_toogle_loop(LED_RED, k_led_toogle_time_ms, 3);
+		}
 	}
 }

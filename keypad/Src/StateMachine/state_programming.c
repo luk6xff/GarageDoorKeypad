@@ -219,6 +219,18 @@ exit:
 				printf("< processing >\r\n");
 			}
 		}
+
+		// If BUTTON_ESC, clean all and go to processing
+		if (sm->last_pressed_btn == BUTTON_ESC)
+		{
+			// Clear last provided radio code
+			clear_radio_code();
+			led_toogle_loop(LED_RED, k_led_toogle_time_ms, 3);
+			// Disable leds
+			led_disable_all();
+			sm->current_state = Processing;
+			printf("< processing >\r\n");
+		}
 	}
 }
 
