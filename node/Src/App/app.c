@@ -23,6 +23,7 @@ extern IWDG_HandleTypeDef hiwdg;
 //------------------------------------------------------------------------------
 static const uint32_t k_relay_toogle_time_ms = 400;
 static const uint32_t k_led_toogle_time_ms = 100;
+static const uint32_t k_sleep_time_ms = 100;
 
 //------------------------------------------------------------------------------
 static void handle_code_program_request(const radio_msg *msg);
@@ -128,6 +129,8 @@ static void app_programming_mode()
 		}
 		// Kick the watchdog
 		HAL_IWDG_Refresh(&hiwdg);
+		// Sleep for some time
+		HAL_Delay(k_sleep_time_ms);
 	}
 }
 
@@ -148,6 +151,8 @@ static void app_normal_mode()
 		}
 		// Kick the watchdog
 		HAL_IWDG_Refresh(&hiwdg);
+		// Sleep for some time
+		HAL_Delay(k_sleep_time_ms);
 	}
 }
 
