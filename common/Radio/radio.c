@@ -50,7 +50,9 @@ void radio_init()
 	  printf("%s", k_nrf24l01p_not_connected);
 	}
 
-	//nrf24l01p_set_rf_tx_power(NRF24L01P_TX_PWR_MINUS_12_DB);
+	// Set a lowest data rate = 250 KBPS
+	nrf24l01p_set_data_rate(&dev, NRF24L01P_DATARATE_250_KBPS);
+	// Set a transfer size,
 	nrf24l01p_set_transfer_size(&dev, sizeof(radio_msg), k_radio_pipe_num);
 	// Set a proper mode
 	nrf24l01p_set_rx_mode(&dev);
