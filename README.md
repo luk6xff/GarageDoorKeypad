@@ -14,6 +14,22 @@ HW schematics for both Keypad and Node available [here](docs/schematics).
 * Press `Build Release` button (hammer icon) in IDE to compile a project.
 * Press `Run` button (play icon) in IDE to flash a uC.
 
+## Some pics
+
+* Node:
+![](docs/photos/node1.jpg)
+![](docs/photos/node2.jpg)
+
+* Keypad:
+![](docs/photos/keypad1.jpg)
+![](docs/photos/keypad2.jpg)
+
+* Connections:
+![](docs/photos/conn1.jpg)
+![](docs/photos/conn2.jpg)
+![](docs/photos/conn3.jpg)
+
+
 ## FAQ
 1. To flash SW from CLI:
 ```sh

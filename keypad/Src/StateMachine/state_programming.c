@@ -124,7 +124,7 @@ void state_programming(SmCtx *sm)
 				last_button_pressed_timestamp = timestamp_ms;
 			}
 
-			else if (sm->last_pressed_btn != BUTTON_M)
+			else if (sm->last_pressed_btn != BUTTON_M && sm->last_pressed_btn != BUTTON_ARROW_UP)
 			{
 				current_radio_code[current_radio_code_idx++] = sm->last_pressed_btn;
 				last_button_pressed_timestamp = timestamp_ms;
@@ -152,7 +152,7 @@ void state_programming(SmCtx *sm)
 						{
 							if (eeprom_check_if_radio_code_id_exists(msg.radio_cfg.id))
 							{
-								printf("eeprom - There is already a radio_code id:%lu registered. Stopping registering a new one!\r\n", msg.radio_cfg.id);
+								printf("eeprom - There is already a radio_code id:%lu registered. Stopping registering a new one!\r\nUse a BUTTON_ARROW_UP to overwrite the old one\r\n", msg.radio_cfg.id);
 								led_toogle_loop(LED_RED, k_led_toogle_time_ms, 4);
 								goto exit;
 							}
